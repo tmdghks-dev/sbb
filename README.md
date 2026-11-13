@@ -442,3 +442,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: QuestionLazyLoadingTest 추가: 클래스에 @Transactional 없이 findById로 질문을 가져온 뒤 answers를 읽으면 LazyInitializationException이 나는 것을 단언
 - 이유: LAZY 컬렉션은 실제로 사용할 때 SELECT 되므로 그 순간 DB 커넥션(영속성 컨텍스트)이 살아 있어야 함을 실패로 확인 (14163 22~25강, 강사 레포 005-04), QuestionRepositoryTest t10이 통과하는 이유가 클래스의 @Transactional 때문임을 비교로 보여주기 위해, 화면에서 LAZY가 동작하는 것은 OSIV 덕분 (설계 7)
 - 결과: ./gradlew test 통과 (26개, 이 테스트는 예외가 나야 통과)
+
+### 020-04 1단계 보강, default_batch_fetch_size로 목록의 N+1 완화
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-04)
+- 작업: application.yaml에 spring.jpa.properties.hibernate.default_batch_fetch_size: 100
+- 이유: 질문 목록은 행마다 답변 개수(question.answers)를 읽어서, 질문 10개면 답변 SELECT가 10번 더 나가는 N+1 문제가 있었음 (010-03에서 주의로만 기록), 배치 크기를 정하면 LAZY 컬렉션을 처음 읽을 때 같은 페이지의 질문들 답변을 IN (…) 한 번으로 함께 가져옴 (강사 레포 020-02), 엔티티를 템플릿에 직접 넘기는 설계(7)를 유지하면서 쿼리 수를 줄이는 가장 작은 변경
+- 결과: ./gradlew test 통과 (26개), 개발 실행(질문 302개)에서 GET /questions 한 번에 실행된 SELECT: 변경 전 12개(답변 조회 question_id=? 10번 포함) → 변경 후 3개(답변 조회 question_id in (…) 1번)
