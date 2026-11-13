@@ -216,3 +216,9 @@
 - 작업: style.css를 static/resource/로 이동하고 레이아웃 경로 변경, SecurityConfig에 /resource/** permitAll, layout.html에 <meta name="_csrf" th:content="${_csrf.token}">
 - 이유: 정적 파일을 한 폴더에 모아 두면 시큐리티 허용 규칙을 /resource/** 하나로 단순하게 유지할 수 있음 (14168 46강), JS로 만든 폼(015의 a[method] 삭제 링크 등)이 CSRF 토큰을 읽어 갈 수 있게 페이지마다 meta로 넣어 둠 (14168 46강)
 - 결과: ./gradlew test 통과 (12개), 브라우저에서 /resource/style.css 200(예전 /style.css는 404), Pretendard 그대로 적용, meta _csrf에 토큰 값 확인
+
+### 012-01 회원가입, Member 엔티티와 MemberRepository
+- [링크](https://github.com/tmdghks-dev/sbb/commit/012-01)
+- 작업: domain/member/member/entity/Member: BaseEntity 상속, username·email은 unique, password, setter 없이 생성자 Member(username, password, email), MemberRepository: findByUsername, findByEmail (Optional)
+- 이유: 회원 정보를 저장하기 위해 (책 3-06 SiteUser), 이름은 SiteUser 대신 Member (설계 12), 아이디·이메일 중복을 DB 제약(unique)으로도 막기 위해, 책의 findByusername은 명명 오타 → findByUsername
+- 결과: ./gradlew test 통과 (12개), SQL 로그에 create table member와 username·email unique 제약 생성 확인
