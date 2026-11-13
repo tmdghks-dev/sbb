@@ -436,3 +436,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: @OneToMany(mappedBy = "question", …)로 되돌림
 - 이유: mappedBy = "question"은 "이 관계의 주인은 Answer.question 필드(외래키 question_id)"라는 뜻 → 중간 테이블 없이 외래키 하나로 관리 (14163, 강사 레포 004-04), 020-01 실험과 비교해 왜 mappedBy를 붙이는지 커밋 기록으로 남기기 위해
 - 결과: ./gradlew test 통과 (25개), 테스트 로그에 question_answers가 한 번도 나오지 않음 확인
+
+### 020-03 1단계 보강, [실험] 트랜잭션 밖 LAZY 로딩은 실패한다
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-03)
+- 작업: QuestionLazyLoadingTest 추가: 클래스에 @Transactional 없이 findById로 질문을 가져온 뒤 answers를 읽으면 LazyInitializationException이 나는 것을 단언
+- 이유: LAZY 컬렉션은 실제로 사용할 때 SELECT 되므로 그 순간 DB 커넥션(영속성 컨텍스트)이 살아 있어야 함을 실패로 확인 (14163 22~25강, 강사 레포 005-04), QuestionRepositoryTest t10이 통과하는 이유가 클래스의 @Transactional 때문임을 비교로 보여주기 위해, 화면에서 LAZY가 동작하는 것은 OSIV 덕분 (설계 7)
+- 결과: ./gradlew test 통과 (26개, 이 테스트는 예외가 나야 통과)
