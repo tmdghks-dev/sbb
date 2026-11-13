@@ -1,0 +1,26 @@
+<th:block th:fragment="formErrorsFragment">
+    <!-- 메시지 형식: "순번-필드명-메시지" → 순번으로 정렬하고, 필드명은 focus 용, 메시지만 화면에 출력 -->
+    <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
+        <div
+                th:each="err : ${#fields.allErrors().stream().sorted()}"
+                th:with="errStrs = ${err.split('-', 3)},
+                    errFieldName = ${errStrs[1]},
+                    errMsg = ${errStrs[2]}"
+                th:data-error-field-name="${errFieldName}"
+                th:text="${errMsg}"
+        ></div>
+    </div>
+
+    <script>
+        // 현재까지 나온 모든 폼 검색
+        const forms = document.querySelectorAll('form');
+        // 그 중에서 가장 마지막 폼 1개 찾기
+        const lastForm = forms[forms.length - 1];
+
+        const errorFieldName = lastForm.querySelector('.alert > div')?.dataset?.errorFieldName || '';
+
+        if (errorFieldName.length > 0) {
+            setTimeout(() => lastForm[errorFieldName].focus());
+        }
+    </script>
+</th:block>

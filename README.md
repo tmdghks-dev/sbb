@@ -162,3 +162,9 @@
 - 작업: spring-boot-starter-validation(+ validation-test) 의존성 추가, WriteForm에 @NotBlank(제목·내용), @Size(max = 200)(제목), POST 액션에 @ModelAttribute("form") @Valid WriteForm form, BindingResult bindingResult (순서 중요), 오류가 있으면 같은 폼 화면을 다시 보여줌, write.html에 #fields.allErrors()로 오류 메시지 표시
 - 이유: 빈 제목·내용이 저장되는 것을 서버에서 막기 위해 (책 2-16, 14168 9~15강: 서버 검증은 무조건), BindingResult가 @Valid 바로 뒤에 있어야 예외 대신 오류 정보를 받아 폼을 다시 보여줄 수 있음 (14168), @ModelAttribute("form") 덕분에 다시 보여준 폼에 입력했던 값이 그대로 남음 (14168 입력값 유지), 책의 @NotEmpty는 공백만 입력해도 통과 → @NotBlank (14168)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 제목만 입력하고 저장 → 같은 화면에 "내용을 입력해주세요." 표시, 입력한 제목은 유지됨 확인
+
+### 008-03 질문 등록, 오류 메시지 fragment·정렬·첫 오류 필드 focus
+- [링크](https://github.com/tmdghks-dev/sbb/commit/008-03)
+- 작업: templates/form_errors.html fragment: 오류를 정렬해서 출력하고, 첫 오류 필드에 focus 주는 스크립트 포함, 검증 메시지를 "01-subject-제목을 입력해주세요."처럼 순번-필드명-메시지 형식으로 변경, write.html에서 th:replace="~{form_errors :: formErrorsFragment}"로 사용
+- 이유: #fields.allErrors()는 순서가 매번 달라질 수 있어서 메시지 앞 순번으로 정렬해 항상 같은 순서로 보여주기 위해 (14168 20~25강), 필드명을 data 속성에 담아 첫 오류 필드로 커서를 옮겨 바로 고칠 수 있게 (14168), 오류 표시 코드를 fragment로 분리해 다른 폼에서도 재사용 (책 2-16 form_errors, 14168)
+- 결과: ./gradlew test 통과 (11개), 빈 폼 저장을 3번 반복해도 항상 "제목 → 내용" 순서로 표시되고 제목에 focus 확인, 단 제목만 입력했을 때 내용 칸으로 focus가 가지 않는 문제 발견 → 008-04에서 수정

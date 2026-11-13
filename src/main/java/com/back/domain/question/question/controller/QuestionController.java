@@ -32,10 +32,10 @@ public class QuestionController {
     }
 
     public record WriteForm(
-            @NotBlank(message = "제목을 입력해주세요.")
-            @Size(max = 200, message = "제목은 200자 이하로 입력가능합니다.")
+            @NotBlank(message = "01-subject-제목을 입력해주세요.")
+            @Size(max = 200, message = "02-subject-제목은 200자 이하로 입력가능합니다.")
             String subject,
-            @NotBlank(message = "내용을 입력해주세요.")
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
             String content
     ) {
     }
