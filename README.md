@@ -84,3 +84,9 @@
 - 작업: QuestionRepository extends JpaRepository<Question, Integer>, 쿼리 메서드 findBySubject, findBySubjectAndContent(Optional 반환), findBySubjectLike(List 반환)
 - 이유: 메서드 이름만으로 SELECT 쿼리를 만드는 쿼리 메서드 명명 규칙 학습 (책 2-05, 14163 015~017), 하나만 나오는 조회는 Optional로 받아 없는 경우를 명확히 처리하기 위해 (14163)
 - 결과: ./gradlew test 통과 (1개), 각 메서드 동작은 004-03 테스트에서 확인
+
+### 004-02 초기 데이터, BaseInitData로 샘플 질문·답변 생성
+- [링크](https://github.com/tmdghks-dev/sbb/commit/004-02)
+- 작업: global/initData/BaseInitData(@Configuration): ApplicationRunner 빈이 앱 시작 시 self.work1() 호출, work1(@Transactional): 질문이 하나라도 있으면 건너뛰고, 질문 2개 저장 후 2번 질문에 addAnswer로 답변 2개 추가, @Autowired @Lazy self로 자기 자신의 프록시를 주입받음
+- 이유: 개발 DB와 테스트 DB에 같은 샘플 데이터를 준비해서 화면 확인과 테스트 기준값으로 쓰기 위해 (14168 BaseInitData, 14163 TestInitData), 같은 클래스 안에서 this.work1()을 부르면 프록시를 거치지 않아 @Transactional이 적용되지 않음 → self 프록시로 호출, count() > 0 이면 건너뛰어 재시작해도 중복 생성되지 않게, 아직 Service가 없어서 Repository로 시작하고 005-02에서 Service 호출로 바꿈
+- 결과: ./gradlew test 통과 (1개), 로그에 work1 트랜잭션 시작 → insert question 2번 → insert answer 2번 → 트랜잭션 종료 확인 (answer는 save 없이 cascade PERSIST로 INSERT)
