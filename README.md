@@ -120,3 +120,9 @@
 - 작업: MainController GET / → redirect:/questions (@ResponseBody 제거), QuestionController GET /questions/ → redirect:/questions
 - 이유: 루트 주소로 들어오면 질문 목록을 보여주기 위해 (책 2-08, 14163 MainController), 끝에 /가 붙은 주소도 목록으로 보내 주소 통일 (14168 /posts/ → /posts), 리다이렉트 액션은 DB에 접근하지 않으므로 @Transactional을 붙이지 않음 (14168)
 - 결과: ./gradlew test 통과 (11개), GET / → 302 Location /questions, GET /questions/ → 302 Location /questions 확인
+
+### 005-03 질문 상세, GET /questions/{id}와 없는 질문 404
+- [링크](https://github.com/tmdghks-dev/sbb/commit/005-03)
+- 작업: QuestionController GET /questions/{id} (@PathVariable int id, readOnly 트랜잭션) → question/question/detail, global/exception/DataNotFoundException(@ResponseStatus 404, reason entity not found), 질문이 없으면 orElseThrow로 던짐, 상세 화면: 제목, 내용(pre-line), 답변 개수와 답변 목록, 목록의 제목을 상세 링크로 변경
+- 이유: URL은 /questions/{id} (14163 37강 표, 14168 /posts/{id}), findById().get()은 없는 id에서 NoSuchElementException(500)이 나므로 의미 있는 404로 응답하기 위해 (책 2-10, 14163 35강), @PathVariable은 int로 통일 (14168), 답변 목록은 LAZY 컬렉션이라 화면을 그릴 때 조회됨 (OSIV)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 /questions/2 → 제목·내용·답변 2개 표시, /questions/999 → 404 entity not found 확인
