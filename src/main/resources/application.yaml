@@ -6,6 +6,9 @@ spring:
   output:
     ansi:
       enabled: always
+  datasource:
+    hikari:
+      auto-commit: false
   jpa:
     show-sql: true
     hibernate:

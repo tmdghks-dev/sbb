@@ -42,3 +42,9 @@
 - 작업: `show-sql`, `format_sql`, `highlight_sql`, `use_sql_comments` 켜기, `org.hibernate.orm.jdbc.bind`·`extract` TRACE(바인딩 값·조회 결과), `org.springframework.transaction.interceptor` TRACE(트랜잭션 시작·종료), 컬러 로그(`output.ansi.enabled: always`)
 - 이유: JPA가 실제로 어떤 SQL을 언제 실행하는지, `?`에 어떤 값이 들어가는지, 트랜잭션이 어디서 열리고 닫히는지 눈으로 확인하면서 공부하기 위해 (14163 6강, 14168)
 - 결과: 테스트 통과. 아직 엔티티가 없어서 실행되는 SQL이 없음 → 003(엔티티)부터 로그로 확인
+
+### 002-04 개발 환경, 커넥션 auto-commit 끄기
+- [링크](https://github.com/tmdghks-dev/sbb/commit/002-04)
+- 작업: `spring.datasource.hikari.auto-commit: false`
+- 이유: 커넥션 풀이 기본으로 auto-commit을 켜 두면 SQL 하나마다 바로 커밋됨. 커밋 시점을 `@Transactional`(이 프로젝트는 컨트롤러 액션에 붙임)이 정하도록 맡기고, 트랜잭션 밖에서 실수로 반영되는 것을 막기 위해 (14168)
+- 결과: 테스트 통과, 앱 정상 기동(`/` 200). 실제 효과는 004(리포지터리·트랜잭션 테스트)에서 로그로 확인
