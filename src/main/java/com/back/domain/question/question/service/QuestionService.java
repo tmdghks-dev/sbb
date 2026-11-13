@@ -4,13 +4,7 @@ import com.back.domain.member.member.entity.Member;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,24 +38,7 @@ public class QuestionService {
 
     public Page<Question> findPage(int page, String kw) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createDate")));
-        return questionRepository.findAll(search(kw), pageable);
-    }
-
-    // 제목, 내용, 질문 작성자, 답변 내용, 답변 작성자 중 하나라도 kw 를 포함하면 검색된다.
-    private Specification<Question> search(String kw) {
-        return (Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            query.distinct(true);  // 답변 여러 개가 걸려도 질문은 한 번만
-            Join<Question, Member> u1 = q.join("author", JoinType.LEFT);
-            Join<Question, Answer> a = q.join("answers", JoinType.LEFT);
-            Join<Answer, Member> u2 = a.join("author", JoinType.LEFT);
-            return cb.or(
-                    cb.like(q.get("subject"), "%" + kw + "%"),     // 제목
-                    cb.like(q.get("content"), "%" + kw + "%"),     // 내용
-                    cb.like(u1.get("username"), "%" + kw + "%"),   // 질문 작성자
-                    cb.like(a.get("content"), "%" + kw + "%"),     // 답변 내용
-                    cb.like(u2.get("username"), "%" + kw + "%")    // 답변 작성자
-            );
-        };
+        return questionRepository.findAllByKeyword(kw, pageable);
     }
 
     public void modify(Question question, String subject, String content) {

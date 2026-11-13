@@ -324,3 +324,9 @@
 - 작업: QuestionRepository에 JpaSpecificationExecutor 추가, QuestionService.findPage(page, kw): Specification(질문 작성자·답변·답변 작성자 LEFT JOIN, distinct)으로 제목·내용·질문 작성자·답변 내용·답변 작성자 중 하나라도 kw를 포함하면 검색, 목록 액션에 @RequestParam(defaultValue = "") String kw, 모델에 kw, 목록 화면: 검색창과 찾기 버튼, 숨은 searchForm(kw, page)으로 페이지 이동 시에도 검색어 유지, QuestionServiceTest 5개: 전체, 제목, 답변 내용(질문 중복 없음), 질문 작성자, 답변 작성자 검색
 - 이유: 질문을 검색하는 기능 (책 3-13), 답변이 여러 개 걸리는 질문이 여러 번 나오지 않게 distinct, 페이지 링크와 검색을 한 폼으로 보내서 검색 결과 안에서 페이지를 이동할 수 있게 (책의 searchForm 방식 그대로), 책은 Specification과 @Query를 차례로 구현 → 019-02에서 @Query로 교체
 - 결과: ./gradlew test 통과 (25개), 브라우저에서 "[1" 검색 → [199]부터 10개와 0~5 페이지, 1페이지로 이동해도 검색어 유지([189]부터), "자동"(답변 내용) 검색 → 2번 질문 1건 확인
+
+### 019-02 검색, @Query JPQL로 교체
+- [링크](https://github.com/tmdghks-dev/sbb/commit/019-02)
+- 작업: QuestionRepository.findAllByKeyword(kw, pageable): select distinct q … left outer join q.author / q.answers / a.author … like %:kw% (JPQL, 텍스트 블록), QuestionService.findPage가 findAllByKeyword 사용, Specification 코드와 JpaSpecificationExecutor 제거
+- 이유: 책 3-13처럼 같은 검색을 JPQL로도 작성해 두 방식을 비교 (Criteria API는 자바 코드로 조립, JPQL은 SQL과 비슷한 문자열), JPQL은 연관관계 필드(q.author, q.answers)로 바로 조인할 수 있어 on 조건 없이 짧게 표현 가능, 책은 교체 후에도 Specification 메서드를 쓰지 않는 코드로 남겨 둠 → 사용하지 않는 코드는 지움 (019-01 커밋에 기록이 남아 있음)
+- 결과: ./gradlew test 통과 (25개, 검색 테스트 5개 그대로 통과), 브라우저에서 019-01과 같은 결과: "[1" 검색 10개·페이지 이동 시 검색어 유지, "자동" 검색 1건 확인
