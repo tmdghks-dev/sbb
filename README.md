@@ -72,3 +72,9 @@
 - 작업: Question에 @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}) answers 추가, new ArrayList<>()로 초기화, 연관관계 편의 메서드 addAnswer(content): Answer를 만들어 answers에 추가하고 반환
 - 이유: mappedBy가 없으면 JPA가 중간 테이블(question_answers)을 만듦 → 외래키는 answer.question_id 하나로 관리 (14163 007~013), PERSIST: 질문에 답변을 추가만 해도 저장(INSERT)되게, REMOVE: 질문을 지우면 답변도 지워지게, 책은 answerRepository.save로 저장 → 답변은 질문을 통해서만 다루기 위해 addAnswer 사용 (14163 37강 강사의 커스터마이징, 14168 addComment), 컬렉션 초기화는 NPE 방지 (14163)
 - 결과: ./gradlew test 통과 (1개), SQL 로그에 중간 테이블(question_answers)이 생기지 않음 확인, addAnswer 동작은 004-05 테스트에서 확인
+
+### 003-05 엔티티, orphanRemoval 추가
+- [링크](https://github.com/tmdghks-dev/sbb/commit/003-05)
+- 작업: Question.answers에 orphanRemoval = true 추가
+- 이유: answers 리스트에서 답변을 빼기만 하면(remove) 그 답변이 DB에서도 DELETE 되게 하기 위해 (14168 Post.comments), cascade REMOVE는 부모(질문)를 지울 때 자식도 지우는 것이고, orphanRemoval은 부모와의 관계가 끊긴 자식을 지우는 것 (14168 강의 표), 답변 삭제(015-05)를 AnswerRepository 없이 question.deleteAnswer()로 처리하기 위한 준비
+- 결과: ./gradlew test 통과 (1개), 실제 삭제 동작은 015-05에서 확인
