@@ -312,3 +312,9 @@
 - 작업: 상세 화면 답변 카드마다 <a th:id="answer_{id}">, 답변 작성·수정·추천 후 redirect:/questions/{qid}#answer_{id}, QuestionService.writeAnswer에서 addAnswer 후 flush로 INSERT를 먼저 실행해 답변 id를 얻음
 - 이유: 답변이 많을 때 작성·수정·추천 후 페이지 맨 위로 돌아가지 않고 해당 답변을 바로 보게 (책 3-11), 이 프로젝트는 save 없이 cascade로 저장하므로 커밋 전까지 INSERT가 안 되어 id가 0 → IDENTITY 전략은 INSERT를 해야 id가 생기므로 flush를 명시적으로 호출 (14163: INSERT 시점은 flush), 책은 AnswerService.create가 save 후 Answer를 반환하도록 바꿈
 - 결과: ./gradlew test 통과 (19개), 브라우저에서 답변 등록 → /questions/2#answer_5로 이동하고 해당 앵커 존재, 창 높이 500px에서 같은 주소를 열면 그 답변이 화면 맨 위(anchorTop 0)로 스크롤되는 것 확인
+
+### 018-01 마크다운, commonmark로 질문·답변 내용 렌더링
+- [링크](https://github.com/tmdghks-dev/sbb/commit/018-01)
+- 작업: commonmark 0.24.0 의존성 (Boot BOM 밖이라 버전 명시), global/util/CommonUtil(@Component).markdown(): 마크다운 → HTML, 상세 화면 질문·답변 내용을 th:utext="${commonUtil.markdown(...)}"로 출력, QuestionController 상세 액션에서 commonUtil을 모델에 넣어 줌, CommonUtilTest: 제목·굵게·코드·목록 변환 확인
+- 이유: 질문·답변에 마크다운(제목, 굵게, 목록, 코드 블록)을 쓸 수 있게 (책 3-12), 책은 템플릿에서 ${@commonUtil.markdown(...)}로 빈을 직접 호출 → Boot 4의 Thymeleaf 3.1.5에서는 이 위치의 빈 호출이 보안 제한으로 막혀 템플릿 오류가 남(직접 확인) → 모델로 넘겨서 호출, 주의: 마크다운 안의 raw HTML도 그대로 출력되어 XSS 위험이 있음 (이스케이프는 선택 목록, 책도 같은 상태)
+- 결과: ./gradlew test 통과 (20개), 브라우저에서 마크다운으로 질문 작성 → h2 제목, 굵은 글씨, 목록 2개, 코드 블록(pre > code)으로 렌더링 확인

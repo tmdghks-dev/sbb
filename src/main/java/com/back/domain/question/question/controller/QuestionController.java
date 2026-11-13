@@ -5,6 +5,7 @@ import com.back.domain.member.member.service.MemberService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.global.exception.DataNotFoundException;
+import com.back.global.util.CommonUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,6 +33,7 @@ import java.security.Principal;
 public class QuestionController {
     private final QuestionService questionService;
     private final MemberService memberService;
+    private final CommonUtil commonUtil;
 
     @GetMapping("/questions")
     @Transactional(readOnly = true)
@@ -165,6 +167,8 @@ public class QuestionController {
         Question question = questionService.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("%d번 질문이 없습니다.".formatted(id)));
         model.addAttribute("question", question);
+        // 최신 Thymeleaf 는 th:utext 안에서 ${@빈이름...} 호출을 막으므로, 모델로 넘겨서 ${commonUtil...} 로 쓴다.
+        model.addAttribute("commonUtil", commonUtil);
         return "question/question/detail";
     }
 
