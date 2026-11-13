@@ -108,3 +108,9 @@
 - 작업: t8 삭제: delete 후 count 2 → 1 (답변이 달린 2번이 아니라 1번 질문), t9 addAnswer: flush 전에는 id 0, flush 후 cascade PERSIST로 INSERT되어 id 생성, t10 LAZY 로딩: question.getAnswers() 호출 시점에 답변 2개 조회, 14163의 answerRepository 테스트(t8, t10)는 AnswerRepository를 두지 않기로 해서 제외
 - 이유: 답변을 save 없이 질문에 추가만 해도 저장되는 cascade PERSIST를 테스트로 확인 (14163 019~021), LAZY 컬렉션은 실제로 사용할 때 SELECT되며, 트랜잭션(커넥션)이 살아 있어야 로딩된다는 것을 확인 (14163 022~025), flush를 직접 호출해 INSERT 시점을 눈으로 확인 (14163 강의: INSERT 로그를 보려면 flush)
 - 결과: ./gradlew test 통과 (11개)
+
+### 005-01 질문 목록, QuestionService와 GET /questions
+- [링크](https://github.com/tmdghks-dev/sbb/commit/005-01)
+- 작업: 타임리프 의존성 추가, dev 프로필에 thymeleaf cache false + prefix file:src/main/resources/templates/, QuestionService(count, write, findById, findAll), QuestionController GET /questions → question/question/list 템플릿, 액션에 @Transactional(readOnly = true), BaseInitData를 Repository 대신 QuestionService 호출로 변경
+- 이유: 컨트롤러는 Service를 통해 데이터를 다루게 하기 위해 (책 2-09, 14168 PostService), URL은 복수형 명사 /questions (14163 37강 표, 14168 /posts), 트랜잭션은 DB에 접근하는 컨트롤러 액션에 두고 조회는 readOnly (14168), 템플릿 경로는 도메인 구조와 같게 question/question/list (14168 post/post/list), dev에서 템플릿을 소스 폴더에서 바로 읽어 재시작 없이 반영 (14168)
+- 결과: ./gradlew test 통과 (11개), 브라우저(ego-lite)에서 /questions에 샘플 질문 2개(번호·제목·작성일시) 표시 확인
