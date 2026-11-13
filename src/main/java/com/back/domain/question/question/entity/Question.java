@@ -32,6 +32,11 @@ public class Question extends BaseEntity {
         this.content = content;
     }
 
+    public void modify(String subject, String content) {
+        this.subject = subject;
+        this.content = content;
+    }
+
     public Answer addAnswer(String content) {
         Answer answer = new Answer(this, content);
         answers.add(answer);

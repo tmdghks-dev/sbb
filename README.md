@@ -96,3 +96,9 @@
 - 작업: QuestionRepositoryTest에 @ActiveProfiles("test") @SpringBootTest @Transactional, t1 findAll(2건), t2 findById, t3 findBySubject, t4 findBySubjectAndContent, t5 findBySubjectLike
 - 이유: 책의 SbbApplicationTests는 개발 DB에 데이터를 넣기만 하고 assert가 없음, test 프로필(메모리 DB)에서 BaseInitData가 만든 데이터를 기준으로 결과를 단언 (14163 014~017), @Transactional: 테스트마다 끝나면 롤백되어 테스트끼리 서로 영향을 주지 않게 (14163 018)
 - 결과: ./gradlew test 통과 (6개)
+
+### 004-04 리포지터리 테스트, modify 도메인 메서드와 수정 테스트 (dirty checking)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/004-04)
+- 작업: Question.modify(subject, content) 도메인 메서드 추가, t6: modify만 호출하고 save 없이 findBySubject("수정된 제목")로 수정 확인, t7: t6의 수정이 롤백되어 원래 제목이 그대로인지 확인
+- 이유: 책은 setSubject 후 save로 수정 → setter 없이 엔티티 스스로 값을 바꾸는 메서드로 변경 (14168 Post.modify), 트랜잭션 안에서 바뀐 엔티티는 save 없이도 UPDATE 됨(dirty checking)을 확인 (14168), 14163 018-1에서 보여준 '수정 테스트가 다른 테스트를 깨뜨리는 문제'가 @Transactional 롤백으로 해결됨을 확인 (14163 018-2)
+- 결과: ./gradlew test 통과 (8개), 로그에 save 호출 없이 update question 실행, 테스트 종료 시 롤백 확인
