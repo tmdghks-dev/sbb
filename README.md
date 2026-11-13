@@ -6,6 +6,7 @@
 - 14163: https://www.slog.gg/p/14163/raw / https://github.com/jhs512/p-14163-2
 - 14168: https://www.slog.gg/p/14168/raw / https://github.com/jhs512/p-14168-2
 - 추가 기능: https://wikidocs.net/162814
+- 강사 레포 (같은 미션의 예시, README의 "강사 레포 000-00"은 이 레포의 커밋 번호): https://github.com/jhs512/jsb-plus
 
 ## 기술 스택
 
@@ -41,7 +42,7 @@
 | # | 책(SBB) | 이 프로젝트 | 출처 |
 |---|---|---|---|
 | 1 | properties 하나, 테스트도 개발 DB(`~/local`) 사용 | yaml 프로필 3개, 테스트는 메모리 DB | 14163·14168 |
-| 2 | 테스트가 개발 DB에 데이터만 넣고 assert 없음 | `@Transactional` 롤백 + 실제 assert (테스트 25개) | 14163 |
+| 2 | 테스트가 개발 DB에 데이터만 넣고 assert 없음 | `@Transactional` 롤백 + 실제 assert (테스트 27개), 틀린 방법을 먼저 보여주는 [실험] 커밋 3개 | 14163·강사 레포 |
 | 3 | 엔티티마다 id·날짜 중복, `LocalDateTime.now()` 직접 입력 | `BaseEntity` + JPA Auditing | 14168 |
 | 4 | `@Setter`로 어디서나 값 변경 | 생성자 + 도메인 메서드(`modify`, `addAnswer`, `vote`) | 14168 |
 | 5 | `answerRepository.save`, AnswerService | `addAnswer` + cascade PERSIST, `deleteAnswer` + orphanRemoval (Answer 전용 Repository·Service 없음) | 14163·14168 |
@@ -54,6 +55,8 @@
 | 12 | 루트 패키지에 클래스가 섞여 있음 | `domain/global` 패키지 구조 | 14168 |
 | 13 | 템플릿을 고치면 재시작 필요 | dev는 템플릿을 소스 폴더에서 읽고 캐시 끔 | 14168 |
 | 14 | 작성자 비교를 문자열(username)로 컨트롤러마다 반복 | 엔티티 `isAuthor()`에서 id로 비교 (LAZY 프록시도 안전) | 직접 (검증 중 발견) |
+| 15 | 목록에서 질문마다 답변을 따로 조회 (N+1, 12개 SELECT) | `default_batch_fetch_size`로 IN 한 번 (3개 SELECT) | 강사 레포 020-02 |
+| 16 | 마크다운 안의 `<script>`가 그대로 실행 (저장형 XSS) | raw HTML 이스케이프 + 위험한 링크 무력화 | 강사 레포 028-02 |
 
 ## Boot 4에서 책 코드가 그대로 안 되던 곳
 
@@ -88,10 +91,11 @@
 | 017 | 앵커 | [017](https://github.com/tmdghks-dev/sbb/tree/017) | [016…017](https://github.com/tmdghks-dev/sbb/compare/016...017) |
 | 018 | 마크다운 | [018](https://github.com/tmdghks-dev/sbb/tree/018) | [017…018](https://github.com/tmdghks-dev/sbb/compare/017...018) |
 | 019 | 검색, 1단계 마무리 | [019](https://github.com/tmdghks-dev/sbb/tree/019) | [018…019](https://github.com/tmdghks-dev/sbb/compare/018...019) |
+| 020 | 1단계 보강 ([실험] mappedBy·LAZY·XSS, N+1, XSS 방지) | [020](https://github.com/tmdghks-dev/sbb/tree/020) | [019…020](https://github.com/tmdghks-dev/sbb/compare/019...020) |
 
 ## 아직 하지 않은 것 (선택)
 
-MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash 메시지, 권한 오류 403 통일, 마크다운 raw HTML 이스케이프(XSS 방지), 목록의 답변 수 N+1 개선, 페이지 번호 1부터 표시, 책 4장 배포, 3-14 도전과제
+MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash 메시지, 권한 오류 403 통일, 페이지 번호 1부터 표시, 책 4장 배포, 3-14 도전과제
 
 ## 작업내역
 
@@ -460,3 +464,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: CommonUtil의 HtmlRenderer에 escapeHtml(true), sanitizeUrls(true), Parser·HtmlRenderer를 호출마다 만들지 않고 필드로 한 번만 생성, CommonUtilTest t2를 "막힌다"로 변경: <script>는 &lt;script&gt; 글자로, javascript: 링크는 제거
 - 이유: 020-05에서 확인한 저장형 XSS를 막기 위해 (강사 레포 028-02), 마크다운 문법(굵게, 목록, 코드)은 그대로 쓰고, 사용자가 직접 쓴 HTML만 글자로 바꾸는 가장 작은 변경, 책은 이 부분을 막지 않음
 - 결과: ./gradlew test 통과 (27개), 브라우저에서 <script>document.title='XSS'</script>를 넣은 질문 작성 → 굵게는 적용, script 태그 0개(화면에 글자로 보임), 페이지 제목은 바뀌지 않음, javascript: 링크의 href는 빈 값
+
+### 020-07 1단계 보강, README 개선점·바로가기 갱신
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-07)
+- 작업: README 개선점 표에 15(N+1)·16(XSS) 추가, 2번에 [실험] 커밋과 테스트 27개 반영, 아직 하지 않은 것에서 XSS·N+1 제거, 기능별 바로가기에 020 추가, 참고 자료에 강사 레포(jhs512/jsb-plus) 링크
+- 이유: 020-01~06 보강 내용을 README 요약에도 반영해 한눈에 보이게, "강사 레포 000-00" 표기가 어느 레포를 말하는지 명확히 하기 위해
+- 결과: ./gradlew test 통과 (27개)
