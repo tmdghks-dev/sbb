@@ -90,3 +90,9 @@
 - 작업: global/initData/BaseInitData(@Configuration): ApplicationRunner 빈이 앱 시작 시 self.work1() 호출, work1(@Transactional): 질문이 하나라도 있으면 건너뛰고, 질문 2개 저장 후 2번 질문에 addAnswer로 답변 2개 추가, @Autowired @Lazy self로 자기 자신의 프록시를 주입받음
 - 이유: 개발 DB와 테스트 DB에 같은 샘플 데이터를 준비해서 화면 확인과 테스트 기준값으로 쓰기 위해 (14168 BaseInitData, 14163 TestInitData), 같은 클래스 안에서 this.work1()을 부르면 프록시를 거치지 않아 @Transactional이 적용되지 않음 → self 프록시로 호출, count() > 0 이면 건너뛰어 재시작해도 중복 생성되지 않게, 아직 Service가 없어서 Repository로 시작하고 005-02에서 Service 호출로 바꿈
 - 결과: ./gradlew test 통과 (1개), 로그에 work1 트랜잭션 시작 → insert question 2번 → insert answer 2번 → 트랜잭션 종료 확인 (answer는 save 없이 cascade PERSIST로 INSERT)
+
+### 004-03 리포지터리 테스트, 조회 테스트 (test 프로필 + 트랜잭션 롤백)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/004-03)
+- 작업: QuestionRepositoryTest에 @ActiveProfiles("test") @SpringBootTest @Transactional, t1 findAll(2건), t2 findById, t3 findBySubject, t4 findBySubjectAndContent, t5 findBySubjectLike
+- 이유: 책의 SbbApplicationTests는 개발 DB에 데이터를 넣기만 하고 assert가 없음, test 프로필(메모리 DB)에서 BaseInitData가 만든 데이터를 기준으로 결과를 단언 (14163 014~017), @Transactional: 테스트마다 끝나면 롤백되어 테스트끼리 서로 영향을 주지 않게 (14163 018)
+- 결과: ./gradlew test 통과 (6개)
