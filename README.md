@@ -18,3 +18,9 @@
 - 작업: Spring Boot 4.1.2 · Java 25 · Gradle Kotlin DSL 프로젝트 생성 (패키지 `com.back`, 메인 클래스 `BackApplication`), 의존성은 webmvc · lombok · devtools · 테스트만 추가, README 작성
 - 이유: 강사 14168과 같은 출발점(패키지·빌드 설정)을 만들고, H2·JPA 같은 의존성은 필요한 작업에서 하나씩 추가하기 위해 (14163 진행 방식)
 - 결과: `./gradlew test` 통과(contextLoads), 실행 시 8080 포트로 기동, 컨트롤러가 없어서 `GET /`는 404
+
+### 001-02 프로젝트 시작, MainController로 `/`·`/hello` 응답
+- [링크](https://github.com/tmdghks-dev/sbb/commit/001-02)
+- 작업: `MainController`(`@Controller`)에 `GET /` → `"SBB"`, `GET /hello` → `"안녕하세요 ^ ^"` 액션 추가, 각 액션에 `@ResponseBody`
+- 이유: 컨트롤러가 없으면 404가 난다는 것을 001-01에서 확인했고, 액션 메서드가 실행되고 반환값이 응답 본문이 되는 흐름을 확인하기 위해 (14163 3~4강). `@ResponseBody`가 없으면 반환 문자열을 템플릿 이름으로 해석하고, void를 반환하면 500 오류가 남
+- 결과: `./gradlew test` 통과, 브라우저에서 `/` → `SBB`, `/hello` → `안녕하세요 ^ ^` 확인
