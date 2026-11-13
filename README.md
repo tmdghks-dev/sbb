@@ -132,3 +132,9 @@
 - 작업: domain/question/answer/controller/AnswerController: POST /questions/{questionId}/answers/write, @Transactional, QuestionService.writeAnswer(question, content) → question.addAnswer(content), 상세 화면에 답변 입력 폼(textarea + 답변등록) 추가
 - 이유: 책은 POST /answer/create/{id} + AnswerService + answerRepository.save → 답변은 질문의 하위 리소스이므로 /questions/{id}/answers/write (14168 /posts/{postId}/comments/write), 답변은 질문을 통해서만 다루기로 해서 save 없이 addAnswer만 호출하고, 트랜잭션이 끝날 때 cascade PERSIST로 INSERT (14163 37강, 14168 writeComment), 처리 후 상세 페이지로 리다이렉트(PRG)해서 새로고침 시 중복 등록 방지 (14168 28강)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 1번 질문에 답변을 입력하고 등록 → /questions/1로 리다이렉트, 1개의 답변 표시, 로그에 save 호출 없이 insert answer 실행 확인
+
+### 007-01 화면, Bootstrap(cdnjs)·Pretendard 적용
+- [링크](https://github.com/tmdghks-dev/sbb/commit/007-01)
+- 작업: 목록·상세 템플릿에 cdnjs Bootstrap 5.3.8 CSS와 static/style.css 연결, style.css: Pretendard 폰트 @font-face(jsdelivr), body 기본 폰트 지정, 목록은 table, 상세는 card로 질문·답변·작성일시 표시, 답변 폼은 form-control·btn
+- 이유: 책은 bootstrap.min.css를 static 폴더에 직접 넣음 → 파일 관리 없이 cdnjs URL을 복사해 바로 사용 (14163 38~39강), 한글 가독성을 위해 Pretendard 폰트 적용 (14163)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 목록 표와 상세 카드가 Bootstrap 스타일로 표시되는 것 확인
