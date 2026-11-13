@@ -38,6 +38,11 @@
                     <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
+            <div class="my-3" sec:authorize="isAuthenticated()"
+                 th:if="${answer.author != null and #authentication.name == answer.author.username}">
+                <a th:href="@{|/questions/${question.id}/answers/${answer.id}/modify|}"
+                   class="btn btn-sm btn-outline-secondary">수정</a>
+            </div>
         </div>
     </div>
     <!-- 답변 반복 끝  -->

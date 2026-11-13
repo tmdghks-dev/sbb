@@ -282,3 +282,9 @@
 - 작업: QuestionController: @DeleteMapping("/questions/{id}/delete"), 작성자 확인 후 삭제하고 홈으로 리다이렉트, QuestionService.delete: questionRepository.delete (cascade REMOVE로 답변도 삭제), 상세 화면 작성자 영역에 삭제 링크 <a method="DELETE" onclick="return confirm(...)">
 - 이유: 책은 GET /question/delete/{id} + JS location.href → 상태를 바꾸는 요청이 GET이라 CSRF 보호를 받지 못하고, 링크만 눌려도 삭제될 수 있음, DELETE 메서드 + CSRF 토큰으로 보내도록 global.js(a[method])와 _method 사용 (14168 41~44강), URL은 14168 댓글 삭제와 같은 패턴 …/{id}/delete (설계 11)
 - 결과: ./gradlew test 통과 (17개), 브라우저에서 답변이 달린 질문의 삭제 클릭 → 확인창 취소 시 그대로, 확인 시 목록으로 이동하고 그 질문 주소는 404, GET /questions/{id}/delete는 405로 거절 확인
+
+### 015-04 답변 수정, GET·PUT /questions/{qid}/answers/{id}/modify
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-04)
+- 작업: Question.findAnswerById(id): answers에서 찾기 (AnswerRepository 없음), Answer.isAuthor(member), Answer.modify(content), AnswerController: 중첩 record ModifyForm, GET·PUT /questions/{questionId}/answers/{id}/modify, 작성자가 아니면 400, templates/question/answer/modify.html: hidden _method=PUT, JS 빈 값 검사, 상세 화면 답변 카드에 작성자에게만 수정 버튼
+- 이유: 답변은 질문을 통해서만 다루기로 해서 question.findAnswerById로 찾음 (14168 findCommentById), URL은 질문의 하위 리소스 …/answers/{id}/modify, 수정은 PUT (14168 PostCommentController), 검증은 답변 작성과 같은 방식(JS 검사 + 서버 @Valid) (14168 댓글 수정), 저장은 dirty checking
+- 결과: ./gradlew test 통과 (17개), 브라우저에서 user2가 2번 질문의 자기 답변에서 수정 → 기존 내용이 채워진 폼 → 수정 후 상세에 반영 확인

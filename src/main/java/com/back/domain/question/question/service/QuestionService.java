@@ -54,4 +54,8 @@ public class QuestionService {
     public Answer writeAnswer(Question question, Member author, String content) {
         return question.addAnswer(author, content);
     }
+
+    public void modifyAnswer(Answer answer, String content) {
+        answer.modify(content);
+    }
 }

@@ -1,0 +1,37 @@
+<html layout:decorate="~{layout}">
+
+<head>
+    <title th:text="|${question.id}번 질문의 ${answer.id}번 답변 수정|"></title>
+</head>
+
+<div layout:fragment="content" class="container">
+    <h5 class="my-3 border-bottom pb-2">답변수정</h5>
+
+    <script>
+        function Answer__submitModifyForm(form) {
+            form.content.value = form.content.value.trim();
+
+            if (form.content.value.length === 0) {
+                alert("답변 내용을 입력해주세요.");
+                form.content.focus();
+
+                return;
+            }
+
+            form.submit();
+        }
+    </script>
+
+    <form method="POST" th:action onsubmit="Answer__submitModifyForm(this); return false;">
+        <input type="hidden" name="_method" value="PUT">
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea id="content" name="content" class="form-control" rows="10" autofocus
+                      th:text="${answer.content}"></textarea>
+        </div>
+        <input type="submit" value="수정하기" class="btn btn-primary my-2">
+        <a th:href="@{|/questions/${question.id}|}" class="btn btn-outline-secondary my-2">취소</a>
+    </form>
+</div>
+
+</html>

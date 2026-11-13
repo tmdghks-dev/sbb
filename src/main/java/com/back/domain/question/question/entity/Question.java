@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
@@ -54,5 +55,12 @@ public class Question extends BaseEntity {
         Answer answer = new Answer(this, author, content);
         answers.add(answer);
         return answer;
+    }
+
+    public Optional<Answer> findAnswerById(int id) {
+        return answers
+                .stream()
+                .filter(answer -> answer.getId() == id)
+                .findFirst();
     }
 }
