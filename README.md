@@ -48,3 +48,9 @@
 - 작업: `spring.datasource.hikari.auto-commit: false`
 - 이유: 커넥션 풀이 기본으로 auto-commit을 켜 두면 SQL 하나마다 바로 커밋됨. 커밋 시점을 `@Transactional`(이 프로젝트는 컨트롤러 액션에 붙임)이 정하도록 맡기고, 트랜잭션 밖에서 실수로 반영되는 것을 막기 위해 (14168)
 - 결과: 테스트 통과, 앱 정상 기동(`/` 200). 실제 효과는 004(리포지터리·트랜잭션 테스트)에서 로그로 확인
+
+### 003-01 엔티티, BaseEntity와 JPA Auditing
+- [링크](https://github.com/tmdghks-dev/sbb/commit/003-01)
+- 작업: global/jpa/entity/BaseEntity 추가: @MappedSuperclass, int id(IDENTITY), @CreatedDate createDate, @LastModifiedDate modifyDate, id 기반 equals/hashCode, BackApplication에 @EnableJpaAuditing
+- 이유: 책은 Question·Answer마다 id·createDate를 중복 선언하고 LocalDateTime.now()를 직접 넣음, 공통 필드를 부모 클래스로 모으고 날짜는 Auditing이 자동으로 채우게 하기 위해 (14168), equals/hashCode는 컬렉션에서 remove가 정확히 동작하게 하기 위함 (14168 38강). 주의: id만 비교하므로 저장 전(id=0) 엔티티끼리는 같다고 판단됨
+- 결과: ./gradlew test 통과 (1개), 아직 상속하는 엔티티가 없어 테이블은 생기지 않음
