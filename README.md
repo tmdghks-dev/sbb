@@ -66,3 +66,9 @@
 - 작업: domain/question/answer/entity/Answer: BaseEntity 상속, content(TEXT), @ManyToOne(fetch = LAZY) question → answer 테이블에 question_id 외래키, setter 없이 생성자 Answer(question, content)
 - 이유: 책은 @ManyToOne 기본값(EAGER)이라 답변을 조회할 때마다 질문까지 즉시 함께 조회함, 필요할 때만 조회하도록 LAZY를 명시 (14163 22~25강, 14168: 웬만하면 LAZY만 사용)
 - 결과: ./gradlew test 통과 (1개), SQL 로그에 create table answer (question_id 포함)와 question_id 외래키 제약 생성 확인
+
+### 003-04 엔티티, 질문→답변 목록과 addAnswer (cascade PERSIST·REMOVE)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/003-04)
+- 작업: Question에 @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}) answers 추가, new ArrayList<>()로 초기화, 연관관계 편의 메서드 addAnswer(content): Answer를 만들어 answers에 추가하고 반환
+- 이유: mappedBy가 없으면 JPA가 중간 테이블(question_answers)을 만듦 → 외래키는 answer.question_id 하나로 관리 (14163 007~013), PERSIST: 질문에 답변을 추가만 해도 저장(INSERT)되게, REMOVE: 질문을 지우면 답변도 지워지게, 책은 answerRepository.save로 저장 → 답변은 질문을 통해서만 다루기 위해 addAnswer 사용 (14163 37강 강사의 커스터마이징, 14168 addComment), 컬렉션 초기화는 NPE 방지 (14163)
+- 결과: ./gradlew test 통과 (1개), SQL 로그에 중간 테이블(question_answers)이 생기지 않음 확인, addAnswer 동작은 004-05 테스트에서 확인
