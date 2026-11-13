@@ -168,3 +168,9 @@
 - 작업: templates/form_errors.html fragment: 오류를 정렬해서 출력하고, 첫 오류 필드에 focus 주는 스크립트 포함, 검증 메시지를 "01-subject-제목을 입력해주세요."처럼 순번-필드명-메시지 형식으로 변경, write.html에서 th:replace="~{form_errors :: formErrorsFragment}"로 사용
 - 이유: #fields.allErrors()는 순서가 매번 달라질 수 있어서 메시지 앞 순번으로 정렬해 항상 같은 순서로 보여주기 위해 (14168 20~25강), 필드명을 data 속성에 담아 첫 오류 필드로 커서를 옮겨 바로 고칠 수 있게 (14168), 오류 표시 코드를 fragment로 분리해 다른 폼에서도 재사용 (책 2-16 form_errors, 14168)
 - 결과: ./gradlew test 통과 (11개), 빈 폼 저장을 3번 반복해도 항상 "제목 → 내용" 순서로 표시되고 제목에 focus 확인, 단 제목만 입력했을 때 내용 칸으로 focus가 가지 않는 문제 발견 → 008-04에서 수정
+
+### 008-04 질문 등록, 첫 오류 필드 focus가 autofocus에 밀리던 문제 수정
+- [링크](https://github.com/tmdghks-dev/sbb/commit/008-04)
+- 작업: form_errors.html의 focus 스크립트를 DOMContentLoaded 이후에 실행, focus 전에 폼 안의 autofocus 속성 제거
+- 이유: fragment 스크립트는 폼 맨 위에서 실행되어 아래쪽 입력칸이 아직 없고, 제목칸의 autofocus가 나중에 적용되어 focus를 빼앗음 (14168 코드 그대로일 때 생기는 문제), 문서를 다 읽은 뒤 autofocus를 지우고 첫 오류 필드에 focus를 줘야 의도대로 동작
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 제목만 입력하고 저장 → 내용 칸에 focus, 빈 폼 저장 → 제목 칸에 focus 확인
