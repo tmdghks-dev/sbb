@@ -33,7 +33,22 @@
     </div>
     <!-- 답변 반복 끝  -->
     <!-- 답변 작성 -->
-    <form th:action="@{|/questions/${question.id}/answers/write|}" method="POST" class="my-3">
+    <script>
+        function Answer__submitWriteForm(form) {
+            form.content.value = form.content.value.trim();
+
+            if (form.content.value.length === 0) {
+                alert("답변 내용을 입력해주세요.");
+                form.content.focus();
+
+                return;
+            }
+
+            form.submit();
+        }
+    </script>
+    <form th:action="@{|/questions/${question.id}/answers/write|}" method="POST" class="my-3"
+          onsubmit="Answer__submitWriteForm(this); return false;">
         <textarea name="content" id="content" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>

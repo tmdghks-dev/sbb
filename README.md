@@ -174,3 +174,9 @@
 - 작업: form_errors.html의 focus 스크립트를 DOMContentLoaded 이후에 실행, focus 전에 폼 안의 autofocus 속성 제거
 - 이유: fragment 스크립트는 폼 맨 위에서 실행되어 아래쪽 입력칸이 아직 없고, 제목칸의 autofocus가 나중에 적용되어 focus를 빼앗음 (14168 코드 그대로일 때 생기는 문제), 문서를 다 읽은 뒤 autofocus를 지우고 첫 오류 필드에 focus를 줘야 의도대로 동작
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 제목만 입력하고 저장 → 내용 칸에 focus, 빈 폼 저장 → 제목 칸에 focus 확인
+
+### 008-05 답변 등록, 클라이언트 JS 검사 + 서버 @Valid
+- [링크](https://github.com/tmdghks-dev/sbb/commit/008-05)
+- 작업: AnswerController에 중첩 record WriteForm(@NotBlank content), 액션 파라미터를 @Valid WriteForm으로 변경 (BindingResult 없음), 상세 화면 답변 폼에 onsubmit JS 검사: 앞뒤 공백 제거 후 비어 있으면 alert와 focus, 통과하면 전송
+- 이유: 14168 댓글과 같은 방식: 클라이언트 검사를 먼저 해서 대부분의 실수를 화면에서 막고, 서버 검사는 무조건 함 (14168 33~39강), BindingResult가 없으므로 JS를 우회해 빈 값을 보내면 서버가 400으로 거절 (설계 16), 책은 답변 오류 시 상세 화면을 다시 그림 → 14168 방식을 따름
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 공백만 입력하고 답변등록 → "답변 내용을 입력해주세요." alert, 페이지 이동 없음, JS를 거치지 않고 빈 내용을 POST하면 400 응답 확인
