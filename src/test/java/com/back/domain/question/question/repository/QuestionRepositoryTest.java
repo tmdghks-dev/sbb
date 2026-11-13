@@ -1,5 +1,6 @@
 package com.back.domain.question.question.repository;
 
+import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,5 +79,49 @@ class QuestionRepositoryTest {
     void t7() {
         assertThat(questionRepository.findBySubject("수정된 제목")).isEmpty();
         assertThat(questionRepository.findBySubject("sbb가 무엇인가요?")).isPresent();
+    }
+
+    @Test
+    @DisplayName("삭제")
+    void t8() {
+        assertThat(questionRepository.count()).isEqualTo(2);
+
+        Question question = questionRepository.findById(1).get();
+        questionRepository.delete(question);
+
+        assertThat(questionRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("답변 생성 by oneToMany (addAnswer)")
+    void t9() {
+        Question question = questionRepository.findById(2).get();
+
+        int beforeCount = question.getAnswers().size();
+
+        Answer newAnswer = question.addAnswer("네 자동으로 생성됩니다.");
+
+        // 아직 INSERT 가 실행되지 않았으므로(flush 전) id 는 0 이다.
+        assertThat(newAnswer.getId()).isEqualTo(0);
+
+        int afterCount = question.getAnswers().size();
+        assertThat(afterCount).isEqualTo(beforeCount + 1);
+
+        // flush 하면 cascade PERSIST 로 INSERT 되어 id 가 생긴다.
+        questionRepository.flush();
+        assertThat(newAnswer.getId()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("답변 조회 by oneToMany (LAZY 로딩)")
+    void t10() {
+        Question question = questionRepository.findById(2).get();
+
+        // answers 는 이 시점에 SELECT 된다. 테스트의 @Transactional 덕분에 커넥션이 살아 있어 LAZY 로딩이 가능하다.
+        List<Answer> answers = question.getAnswers();
+        assertThat(answers).hasSize(2);
+
+        Answer answer = answers.get(0);
+        assertThat(answer.getContent()).isEqualTo("네 자동으로 생성됩니다.");
     }
 }

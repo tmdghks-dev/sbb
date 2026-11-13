@@ -102,3 +102,9 @@
 - 작업: Question.modify(subject, content) 도메인 메서드 추가, t6: modify만 호출하고 save 없이 findBySubject("수정된 제목")로 수정 확인, t7: t6의 수정이 롤백되어 원래 제목이 그대로인지 확인
 - 이유: 책은 setSubject 후 save로 수정 → setter 없이 엔티티 스스로 값을 바꾸는 메서드로 변경 (14168 Post.modify), 트랜잭션 안에서 바뀐 엔티티는 save 없이도 UPDATE 됨(dirty checking)을 확인 (14168), 14163 018-1에서 보여준 '수정 테스트가 다른 테스트를 깨뜨리는 문제'가 @Transactional 롤백으로 해결됨을 확인 (14163 018-2)
 - 결과: ./gradlew test 통과 (8개), 로그에 save 호출 없이 update question 실행, 테스트 종료 시 롤백 확인
+
+### 004-05 리포지터리 테스트, 삭제·addAnswer·LAZY 로딩 테스트
+- [링크](https://github.com/tmdghks-dev/sbb/commit/004-05)
+- 작업: t8 삭제: delete 후 count 2 → 1 (답변이 달린 2번이 아니라 1번 질문), t9 addAnswer: flush 전에는 id 0, flush 후 cascade PERSIST로 INSERT되어 id 생성, t10 LAZY 로딩: question.getAnswers() 호출 시점에 답변 2개 조회, 14163의 answerRepository 테스트(t8, t10)는 AnswerRepository를 두지 않기로 해서 제외
+- 이유: 답변을 save 없이 질문에 추가만 해도 저장되는 cascade PERSIST를 테스트로 확인 (14163 019~021), LAZY 컬렉션은 실제로 사용할 때 SELECT되며, 트랜잭션(커넥션)이 살아 있어야 로딩된다는 것을 확인 (14163 022~025), flush를 직접 호출해 INSERT 시점을 눈으로 확인 (14163 강의: INSERT 로그를 보려면 flush)
+- 결과: ./gradlew test 통과 (11개)
