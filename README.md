@@ -138,3 +138,9 @@
 - 작업: 목록·상세 템플릿에 cdnjs Bootstrap 5.3.8 CSS와 static/style.css 연결, style.css: Pretendard 폰트 @font-face(jsdelivr), body 기본 폰트 지정, 목록은 table, 상세는 card로 질문·답변·작성일시 표시, 답변 폼은 form-control·btn
 - 이유: 책은 bootstrap.min.css를 static 폴더에 직접 넣음 → 파일 관리 없이 cdnjs URL을 복사해 바로 사용 (14163 38~39강), 한글 가독성을 위해 Pretendard 폰트 적용 (14163)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 목록 표와 상세 카드가 Bootstrap 스타일로 표시되는 것 확인
+
+### 007-02 화면, layout.html 공통 레이아웃 (layout-dialect)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/007-02)
+- 작업: thymeleaf-layout-dialect 의존성 추가 (버전은 Boot BOM이 관리), templates/layout.html: doctype·head·Bootstrap·style.css를 한 곳에 두고 layout:fragment="content" 자리에 페이지 내용을 끼움, 목록·상세는 layout:decorate="~{layout}"로 레이아웃 사용, 페이지마다 반복하던 link 태그 제거
+- 이유: 페이지마다 head와 CSS 링크를 반복하지 않고, 표준 HTML 구조(doctype, head, body)를 한 곳에서 관리하기 위해 (책 2-15, 14168 44강)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 상세 화면이 레이아웃을 거쳐 Bootstrap·Pretendard가 그대로 적용되고 문서 제목이 SBB로 표시됨 확인
