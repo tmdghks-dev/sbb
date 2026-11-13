@@ -36,3 +36,9 @@
 - 작업: `application.yaml`(공통, 기본 프로필 `dev`, `ddl-auto: update`) / `application-dev.yaml`(`jdbc:h2:./db_dev;MODE=MySQL`) / `application-test.yaml`(`jdbc:h2:mem:db_test;MODE=MySQL`)로 분리, 테스트에 `@ActiveProfiles("test")`, `.gitignore`에 `db_dev.*` 추가
 - 이유: 책은 개발과 테스트가 같은 DB(`~/local`)를 써서 테스트가 개발 데이터를 오염시킴. 테스트는 매번 새로 만들어지는 메모리 DB를 쓰도록 분리 (14163 5강, 14168). `MODE=MySQL`은 나중에 MySQL로 바꿔도 SQL 문법 차이를 줄이기 위함 (14168)
 - 결과: 테스트는 `test` 프로필 + `jdbc:h2:mem:db_test`, 개발 실행은 `dev` 프로필 + 프로젝트 폴더의 `db_dev.mv.db` 파일 생성, H2 콘솔로 `jdbc:h2:./db_dev` 접속 확인, DB 파일은 git에 안 올라감
+
+### 002-03 개발 환경, SQL·트랜잭션 로그 설정
+- [링크](https://github.com/tmdghks-dev/sbb/commit/002-03)
+- 작업: `show-sql`, `format_sql`, `highlight_sql`, `use_sql_comments` 켜기, `org.hibernate.orm.jdbc.bind`·`extract` TRACE(바인딩 값·조회 결과), `org.springframework.transaction.interceptor` TRACE(트랜잭션 시작·종료), 컬러 로그(`output.ansi.enabled: always`)
+- 이유: JPA가 실제로 어떤 SQL을 언제 실행하는지, `?`에 어떤 값이 들어가는지, 트랜잭션이 어디서 열리고 닫히는지 눈으로 확인하면서 공부하기 위해 (14163 6강, 14168)
+- 결과: 테스트 통과. 아직 엔티티가 없어서 실행되는 SQL이 없음 → 003(엔티티)부터 로그로 확인
