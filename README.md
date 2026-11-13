@@ -222,3 +222,9 @@
 - 작업: domain/member/member/entity/Member: BaseEntity 상속, username·email은 unique, password, setter 없이 생성자 Member(username, password, email), MemberRepository: findByUsername, findByEmail (Optional)
 - 이유: 회원 정보를 저장하기 위해 (책 3-06 SiteUser), 이름은 SiteUser 대신 Member (설계 12), 아이디·이메일 중복을 DB 제약(unique)으로도 막기 위해, 책의 findByusername은 명명 오타 → findByUsername
 - 결과: ./gradlew test 통과 (12개), SQL 로그에 create table member와 username·email unique 제약 생성 확인
+
+### 012-02 회원가입, MemberService.join과 BCrypt 비밀번호 암호화
+- [링크](https://github.com/tmdghks-dev/sbb/commit/012-02)
+- 작업: SecurityConfig에 PasswordEncoder 빈(BCryptPasswordEncoder), MemberService: join(username, password, email)에서 비밀번호를 encode해서 저장, findByUsername, findByEmail, count, MemberServiceTest: 가입 시 비밀번호가 평문이 아닌 $2a$ 해시로 저장되고 matches로 확인되는지, 조회 메서드 동작
+- 이유: 비밀번호를 평문으로 저장하면 DB가 유출될 때 그대로 노출되므로 단방향 해시(BCrypt)로 저장 (책 3-06), PasswordEncoder를 빈으로 등록해 서비스와 (013의) 로그인 처리가 같은 방식으로 비교하게, 테스트는 14163과 같은 형식(test 프로필 + @Transactional 롤백)
+- 결과: ./gradlew test 통과 (14개)
