@@ -454,3 +454,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: CommonUtilTest t2: 마크다운에 <script>와 javascript: 링크를 넣으면 변환 결과에 그대로 남는 것을 단언 (취약점을 테스트로 기록)
 - 이유: 018-01에서 상세 화면은 th:utext로 변환된 HTML을 그대로 출력하므로, 누군가 질문에 <script>를 쓰면 그 글을 여는 모든 사람의 브라우저에서 실행됨 (저장형 XSS), 고치기 전에 문제가 실제로 있는지 먼저 테스트로 확인 (강사 레포 028-01의 [실험]), 책도 같은 상태
 - 결과: ./gradlew test 통과 (27개, 다음 커밋에서 이 테스트를 "막힌다"로 바꿈)
+
+### 020-06 1단계 보강, 마크다운 raw HTML 이스케이프와 위험한 링크 무력화 (XSS 방지)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-06)
+- 작업: CommonUtil의 HtmlRenderer에 escapeHtml(true), sanitizeUrls(true), Parser·HtmlRenderer를 호출마다 만들지 않고 필드로 한 번만 생성, CommonUtilTest t2를 "막힌다"로 변경: <script>는 &lt;script&gt; 글자로, javascript: 링크는 제거
+- 이유: 020-05에서 확인한 저장형 XSS를 막기 위해 (강사 레포 028-02), 마크다운 문법(굵게, 목록, 코드)은 그대로 쓰고, 사용자가 직접 쓴 HTML만 글자로 바꾸는 가장 작은 변경, 책은 이 부분을 막지 않음
+- 결과: ./gradlew test 통과 (27개), 브라우저에서 <script>document.title='XSS'</script>를 넣은 질문 작성 → 굵게는 적용, script 태그 0개(화면에 글자로 보임), 페이지 제목은 바뀌지 않음, javascript: 링크의 href는 빈 값

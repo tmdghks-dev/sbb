@@ -20,12 +20,13 @@ class CommonUtilTest {
     }
 
     @Test
-    @DisplayName("[실험] 마크다운 안의 raw HTML 과 javascript: 링크가 그대로 출력된다 (XSS 위험)")
+    @DisplayName("마크다운 안의 raw HTML 은 글자로 출력되고, javascript: 링크는 무력화된다 (XSS 방지)")
     void t2() {
         String html = commonUtil.markdown("<script>alert('xss')</script>\n\n[눌러보세요](javascript:alert(1))");
 
-        // th:utext 로 출력하므로 이 <script> 는 다른 사람의 브라우저에서 그대로 실행된다.
-        assertThat(html).contains("<script>alert('xss')</script>");
-        assertThat(html).contains("href=\"javascript:alert(1)\"");
+        // 020-05 에서는 <script> 가 그대로 남았다. 이제는 &lt;script&gt; 글자가 된다.
+        assertThat(html).doesNotContain("<script>");
+        assertThat(html).contains("&lt;script&gt;");
+        assertThat(html).doesNotContain("javascript:");
     }
 }
