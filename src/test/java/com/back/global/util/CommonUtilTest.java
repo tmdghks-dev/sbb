@@ -18,4 +18,14 @@ class CommonUtilTest {
         assertThat(html).contains("<code>코드</code>");
         assertThat(html).contains("<li>항목1</li>");
     }
+
+    @Test
+    @DisplayName("[실험] 마크다운 안의 raw HTML 과 javascript: 링크가 그대로 출력된다 (XSS 위험)")
+    void t2() {
+        String html = commonUtil.markdown("<script>alert('xss')</script>\n\n[눌러보세요](javascript:alert(1))");
+
+        // th:utext 로 출력하므로 이 <script> 는 다른 사람의 브라우저에서 그대로 실행된다.
+        assertThat(html).contains("<script>alert('xss')</script>");
+        assertThat(html).contains("href=\"javascript:alert(1)\"");
+    }
 }

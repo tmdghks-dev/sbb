@@ -448,3 +448,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: application.yaml에 spring.jpa.properties.hibernate.default_batch_fetch_size: 100
 - 이유: 질문 목록은 행마다 답변 개수(question.answers)를 읽어서, 질문 10개면 답변 SELECT가 10번 더 나가는 N+1 문제가 있었음 (010-03에서 주의로만 기록), 배치 크기를 정하면 LAZY 컬렉션을 처음 읽을 때 같은 페이지의 질문들 답변을 IN (…) 한 번으로 함께 가져옴 (강사 레포 020-02), 엔티티를 템플릿에 직접 넘기는 설계(7)를 유지하면서 쿼리 수를 줄이는 가장 작은 변경
 - 결과: ./gradlew test 통과 (26개), 개발 실행(질문 302개)에서 GET /questions 한 번에 실행된 SELECT: 변경 전 12개(답변 조회 question_id=? 10번 포함) → 변경 후 3개(답변 조회 question_id in (…) 1번)
+
+### 020-05 1단계 보강, [실험] 마크다운 raw HTML이 그대로 실행된다 (XSS)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-05)
+- 작업: CommonUtilTest t2: 마크다운에 <script>와 javascript: 링크를 넣으면 변환 결과에 그대로 남는 것을 단언 (취약점을 테스트로 기록)
+- 이유: 018-01에서 상세 화면은 th:utext로 변환된 HTML을 그대로 출력하므로, 누군가 질문에 <script>를 쓰면 그 글을 여는 모든 사람의 브라우저에서 실행됨 (저장형 XSS), 고치기 전에 문제가 실제로 있는지 먼저 테스트로 확인 (강사 레포 028-01의 [실험]), 책도 같은 상태
+- 결과: ./gradlew test 통과 (27개, 다음 커밋에서 이 테스트를 "막힌다"로 바꿈)
