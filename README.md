@@ -234,3 +234,9 @@
 - 작업: MemberController: 중첩 record JoinForm(username 3~25자, password1, password2, email 형식) + @Valid/BindingResult, 비밀번호 확인이 다르면 password2에 오류, 아이디·이메일이 이미 있으면 각 필드에 오류 (rejectValue, 메시지는 순번-필드명-메시지 형식), templates/member/member/join.html (form_errors fragment 재사용), navbar에 회원가입 링크
 - 이유: 책 3-06의 회원가입을 14168 폼 방식(같은 URL GET·POST, record 폼, 오류 정렬·focus)으로 구현, URL은 /members/join (설계 11), 책은 저장 중 DataIntegrityViolationException을 catch → 이 프로젝트는 컨트롤러에 트랜잭션이 있어 그 예외가 나면 트랜잭션이 롤백 전용이 되므로, 저장 전에 미리 조회해서 중복을 막음 (unique 제약은 마지막 안전장치)
 - 결과: ./gradlew test 통과 (14개), 브라우저에서 비밀번호 확인 불일치 → 오류 표시 + 비밀번호 확인 칸 focus, 정상 가입 → 홈(질문 목록)으로 이동, 같은 아이디로 가입 → "이미 사용중인 사용자ID입니다.", 같은 이메일 → "이미 사용중인 이메일입니다." 확인
+
+### 013-01 로그인, MemberRole·MemberSecurityService·formLogin
+- [링크](https://github.com/tmdghks-dev/sbb/commit/013-01)
+- 작업: MemberRole enum(ADMIN=ROLE_ADMIN, USER=ROLE_USER), MemberSecurityService implements UserDetailsService: username으로 회원 조회, admin이면 ROLE_ADMIN 아니면 ROLE_USER 권한, SecurityConfig에 formLogin(loginPage /members/login, 성공 시 /), GET /members/login 로그인 폼 화면, 실패 시(?error) 안내 문구, navbar에 로그인 링크, BaseInitData에 개발·테스트용 회원 admin, user1, user2 (비밀번호 1234, 아이디별로 없을 때만 생성)
+- 이유: 로그인은 시큐리티가 처리: POST /members/login을 받으면 UserDetailsService로 회원을 찾고 PasswordEncoder로 비밀번호를 비교 (책 3-07), 로그인 폼 URL은 /members/login (설계 11), 화면 확인과 다음 기능(글쓴이·권한) 테스트를 위해 회원 시드 데이터 준비 (14168 BaseInitData 방식), 처음엔 "회원이 0명일 때만 생성"으로 했다가 012에서 가입 테스트한 회원 때문에 시드가 안 만들어지는 문제를 확인하고 아이디별 확인으로 변경
+- 결과: ./gradlew test 통과 (14개), 브라우저에서 틀린 비밀번호 → /members/login?error와 안내 문구, user1/1234 로그인 → 홈(질문 목록)으로 이동 확인

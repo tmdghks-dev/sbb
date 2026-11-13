@@ -32,6 +32,12 @@ public class MemberController {
     ) {
     }
 
+    // 로그인 처리(POST /members/login)는 스프링 시큐리티가 한다. 여기서는 폼만 보여준다.
+    @GetMapping("/members/login")
+    public String showLogin() {
+        return "member/member/login";
+    }
+
     @GetMapping("/members/join")
     public String showJoin(@ModelAttribute("form") JoinForm form) {
         return "member/member/join";

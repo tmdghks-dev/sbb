@@ -31,6 +31,11 @@ public class SecurityConfig {
                 .csrf(
                         (csrf) -> csrf
                                 .ignoringRequestMatchers("/h2-console/**")
+                )
+                .formLogin(
+                        formLogin -> formLogin
+                                .loginPage("/members/login")
+                                .defaultSuccessUrl("/")
                 );
 
         return http.build();

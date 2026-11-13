@@ -1,5 +1,6 @@
 package com.back.global.initData;
 
+import com.back.domain.member.member.service.MemberService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class BaseInitData {
     private BaseInitData self;
 
     private final QuestionService questionService;
+    private final MemberService memberService;
 
     @Bean
     @Order(1)
@@ -42,6 +44,13 @@ public class BaseInitData {
 
     @Transactional
     public void work1() {
+        // 개발·테스트용 회원 (비밀번호는 모두 1234)
+        for (String username : new String[]{"admin", "user1", "user2"}) {
+            if (memberService.findByUsername(username).isEmpty()) {
+                memberService.join(username, "1234", username + "@test.com");
+            }
+        }
+
         if (questionService.count() > 0) return;
 
         Question question1 = questionService.write("sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.");
