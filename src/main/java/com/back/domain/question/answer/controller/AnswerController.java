@@ -1,5 +1,7 @@
 package com.back.domain.question.answer.controller;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.global.exception.DataNotFoundException;
@@ -12,10 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.security.Principal;
+
 @Controller
 @RequiredArgsConstructor
 public class AnswerController {
     private final QuestionService questionService;
+    private final MemberService memberService;
 
     public record WriteForm(
             @NotBlank
@@ -28,12 +33,14 @@ public class AnswerController {
     @PreAuthorize("isAuthenticated()")
     public String write(
             @PathVariable int questionId,
-            @Valid WriteForm writeForm
+            @Valid WriteForm writeForm,
+            Principal principal
     ) {
         Question question = questionService.findById(questionId)
                 .orElseThrow(() -> new DataNotFoundException("%d번 질문이 없습니다.".formatted(questionId)));
         // save 를 호출하지 않는다. 트랜잭션이 끝날 때 cascade PERSIST 로 INSERT 된다.
-        questionService.writeAnswer(question, writeForm.content);
+        Member author = memberService.findByUsername(principal.getName()).get();
+        questionService.writeAnswer(question, author, writeForm.content);
         return "redirect:/questions/" + questionId;
     }
 }

@@ -1,5 +1,7 @@
 package com.back.domain.question.question.controller;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.global.exception.DataNotFoundException;
@@ -19,10 +21,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
+
 @Controller
 @RequiredArgsConstructor
 public class QuestionController {
     private final QuestionService questionService;
+    private final MemberService memberService;
 
     @GetMapping("/questions")
     @Transactional(readOnly = true)
@@ -55,11 +60,13 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     public String write(
             @ModelAttribute("form") @Valid WriteForm form,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            Principal principal
     ) {
         if (bindingResult.hasErrors()) return "question/question/write";
 
-        Question question = questionService.write(form.subject, form.content);
+        Member author = memberService.findByUsername(principal.getName()).get();
+        Question question = questionService.write(author, form.subject, form.content);
         return "redirect:/questions/" + question.getId();
     }
 

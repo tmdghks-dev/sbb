@@ -258,3 +258,9 @@
 - 작업: SecurityConfig에 @EnableMethodSecurity, 질문 등록 폼·처리, 답변 등록 액션에 @PreAuthorize("isAuthenticated()")
 - 이유: 글쓴이를 저장하려면 작성할 때 로그인 사용자가 있어야 함 (책 3-08), @EnableMethodSecurity가 없으면 @PreAuthorize가 오류 없이 조용히 무시되므로 반드시 함께 추가 (책 v3.08, 계획 검증에서 발견), 책은 글쓴이 필드를 먼저 넣지만, 그러면 비로그인 작성 시 오류가 나는 중간 상태가 생겨서 로그인 확인을 먼저 적용
 - 결과: ./gradlew test 통과 (14개), 브라우저에서 비로그인으로 /questions/write → 로그인 페이지로 이동, 비로그인 답변 등록 → 로그인 페이지로 이동, user1 로그인 후 질문 등록 폼 정상 표시 확인
+
+### 014-02 글쓴이, 질문·답변에 author 저장과 표시
+- [링크](https://github.com/tmdghks-dev/sbb/commit/014-02)
+- 작업: Question·Answer에 @ManyToOne(fetch = LAZY) Member author, 생성자와 addAnswer(author, content)에 author 추가, 질문·답변 작성 액션에서 Principal(로그인 아이디)로 회원을 조회해 author로 저장, BaseInitData: 샘플 질문은 user1, 답변은 user2가 쓴 것으로, 목록에 글쓴이 열, 상세 질문·답변 카드에 글쓴이 표시 (author?.username로 글쓴이가 없는 예전 데이터도 오류 없이), 테스트 t9 수정(addAnswer에 user2), t12 추가: 질문 user1·답변 user2 확인
+- 이유: 누가 쓴 글인지 저장하고 보여주기 위해 (책 3-08), 글쓴이도 연관 엔티티이므로 LAZY (14163), 현재 로그인 사용자는 책과 같이 Principal로 받음
+- 결과: ./gradlew test 통과 (15개), 브라우저에서 user2로 질문과 답변 작성 → 상세 카드와 목록 글쓴이에 user2 표시, 샘플 데이터는 user1로 표시 확인

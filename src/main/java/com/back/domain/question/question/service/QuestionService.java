@@ -1,5 +1,6 @@
 package com.back.domain.question.question.service;
 
+import com.back.domain.member.member.entity.Member;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
@@ -22,8 +23,8 @@ public class QuestionService {
         return questionRepository.count();
     }
 
-    public Question write(String subject, String content) {
-        Question question = new Question(subject, content);
+    public Question write(Member author, String subject, String content) {
+        Question question = new Question(author, subject, content);
         return questionRepository.save(question);
     }
 
@@ -40,7 +41,7 @@ public class QuestionService {
         return questionRepository.findAll(pageable);
     }
 
-    public Answer writeAnswer(Question question, String content) {
-        return question.addAnswer(content);
+    public Answer writeAnswer(Question question, Member author, String content) {
+        return question.addAnswer(author, content);
     }
 }

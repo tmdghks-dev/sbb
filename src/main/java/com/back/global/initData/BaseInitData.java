@@ -1,5 +1,6 @@
 package com.back.global.initData;
 
+import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
@@ -53,19 +54,24 @@ public class BaseInitData {
 
         if (questionService.count() > 0) return;
 
-        Question question1 = questionService.write("sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.");
-        Question question2 = questionService.write("스프링부트 모델 질문입니다.", "id는 자동으로 생성되나요?");
+        Member user1 = memberService.findByUsername("user1").get();
+        Member user2 = memberService.findByUsername("user2").get();
 
-        question2.addAnswer("네 자동으로 생성됩니다.");
-        question2.addAnswer("네, @GeneratedValue 로 자동 생성됩니다.");
+        Question question1 = questionService.write(user1, "sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.");
+        Question question2 = questionService.write(user1, "스프링부트 모델 질문입니다.", "id는 자동으로 생성되나요?");
+
+        question2.addAnswer(user2, "네 자동으로 생성됩니다.");
+        question2.addAnswer(user2, "네, @GeneratedValue 로 자동 생성됩니다.");
     }
 
     @Transactional
     public void work2() {
         if (questionService.count() >= 300) return;
 
+        Member user1 = memberService.findByUsername("user1").get();
+
         for (int i = 1; i <= 300; i++) {
-            questionService.write("테스터 데이터입니다:[%03d]".formatted(i), "내용무");
+            questionService.write(user1, "테스터 데이터입니다:[%03d]".formatted(i), "내용무");
         }
     }
 }

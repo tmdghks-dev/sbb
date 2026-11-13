@@ -1,5 +1,7 @@
 package com.back.domain.question.question.repository;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.repository.MemberRepository;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class QuestionRepositoryTest {
     @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     @DisplayName("findAll")
@@ -102,7 +107,8 @@ class QuestionRepositoryTest {
 
         int beforeCount = question.getAnswers().size();
 
-        Answer newAnswer = question.addAnswer("네 자동으로 생성됩니다.");
+        Member user2 = memberRepository.findByUsername("user2").get();
+        Answer newAnswer = question.addAnswer(user2, "네 자동으로 생성됩니다.");
 
         // 아직 INSERT 가 실행되지 않았으므로(flush 전) id 는 0 이다.
         assertThat(newAnswer.getId()).isEqualTo(0);
@@ -139,5 +145,14 @@ class QuestionRepositoryTest {
         assertThat(page.getTotalPages()).isEqualTo(2);
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().get(0).getSubject()).isEqualTo("스프링부트 모델 질문입니다.");
+    }
+
+    @Test
+    @DisplayName("글쓴이 (질문은 user1, 답변은 user2)")
+    void t12() {
+        Question question = questionRepository.findById(2).get();
+
+        assertThat(question.getAuthor().getUsername()).isEqualTo("user1");
+        assertThat(question.getAnswers().get(0).getAuthor().getUsername()).isEqualTo("user2");
     }
 }
