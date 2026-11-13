@@ -78,3 +78,9 @@
 - 작업: Question.answers에 orphanRemoval = true 추가
 - 이유: answers 리스트에서 답변을 빼기만 하면(remove) 그 답변이 DB에서도 DELETE 되게 하기 위해 (14168 Post.comments), cascade REMOVE는 부모(질문)를 지울 때 자식도 지우는 것이고, orphanRemoval은 부모와의 관계가 끊긴 자식을 지우는 것 (14168 강의 표), 답변 삭제(015-05)를 AnswerRepository 없이 question.deleteAnswer()로 처리하기 위한 준비
 - 결과: ./gradlew test 통과 (1개), 실제 삭제 동작은 015-05에서 확인
+
+### 004-01 리포지터리, QuestionRepository와 쿼리 메서드
+- [링크](https://github.com/tmdghks-dev/sbb/commit/004-01)
+- 작업: QuestionRepository extends JpaRepository<Question, Integer>, 쿼리 메서드 findBySubject, findBySubjectAndContent(Optional 반환), findBySubjectLike(List 반환)
+- 이유: 메서드 이름만으로 SELECT 쿼리를 만드는 쿼리 메서드 명명 규칙 학습 (책 2-05, 14163 015~017), 하나만 나오는 조회는 Optional로 받아 없는 경우를 명확히 처리하기 위해 (14163)
+- 결과: ./gradlew test 통과 (1개), 각 메서드 동작은 004-03 테스트에서 확인
