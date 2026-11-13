@@ -46,6 +46,11 @@ public class QuestionService {
         question.modify(subject, content);
     }
 
+    public void delete(Question question) {
+        // cascade REMOVE 로 달린 답변도 함께 삭제된다.
+        questionRepository.delete(question);
+    }
+
     public Answer writeAnswer(Question question, Member author, String content) {
         return question.addAnswer(author, content);
     }

@@ -276,3 +276,9 @@
 - 작업: Question.isAuthor(member): 작성자 id와 비교, QuestionController: 중첩 record ModifyForm, GET /questions/{id}/modify(기존 값으로 폼 채움), PUT /questions/{id}/modify(@Valid + BindingResult), 작성자가 아니면 ResponseStatusException 400 "수정권한이 없습니다.", QuestionService.modify: question.modify()만 호출 (save 없음), modify.html: hidden _method=PUT, form_errors 재사용, 상세 화면에 작성자에게만 수정 버튼 표시, 테스트 t13: isAuthor가 LAZY 프록시 author와도 id로 판단
 - 이유: 책은 GET·POST /question/modify/{id} + setter + save → 수정은 PUT, 변경은 엔티티의 modify 메서드, 저장은 dirty checking (14168 PostController.modify), 작성자 비교를 equals로 하면 LAZY 프록시는 클래스가 달라 false가 될 수 있어서 id로 비교 (계획 검증에서 발견), 권한 오류는 책과 같이 400 (403 통일은 선택 목록)
 - 결과: ./gradlew test 통과 (17개), 브라우저에서 user2는 1번 질문(작성자 user1)에 수정 버튼이 안 보이고, 수정 URL 직접 접근 시 오류 페이지, user1은 수정 버튼 → 기존 값이 채워진 폼 → 제목 수정 → 상세로 이동, 로그에 save 없이 update question 실행 확인
+
+### 015-03 질문 삭제, DELETE /questions/{id}/delete
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-03)
+- 작업: QuestionController: @DeleteMapping("/questions/{id}/delete"), 작성자 확인 후 삭제하고 홈으로 리다이렉트, QuestionService.delete: questionRepository.delete (cascade REMOVE로 답변도 삭제), 상세 화면 작성자 영역에 삭제 링크 <a method="DELETE" onclick="return confirm(...)">
+- 이유: 책은 GET /question/delete/{id} + JS location.href → 상태를 바꾸는 요청이 GET이라 CSRF 보호를 받지 못하고, 링크만 눌려도 삭제될 수 있음, DELETE 메서드 + CSRF 토큰으로 보내도록 global.js(a[method])와 _method 사용 (14168 41~44강), URL은 14168 댓글 삭제와 같은 패턴 …/{id}/delete (설계 11)
+- 결과: ./gradlew test 통과 (17개), 브라우저에서 답변이 달린 질문의 삭제 클릭 → 확인창 취소 시 그대로, 확인 시 목록으로 이동하고 그 질문 주소는 404, GET /questions/{id}/delete는 405로 거절 확인
