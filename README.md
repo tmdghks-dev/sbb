@@ -240,3 +240,9 @@
 - 작업: MemberRole enum(ADMIN=ROLE_ADMIN, USER=ROLE_USER), MemberSecurityService implements UserDetailsService: username으로 회원 조회, admin이면 ROLE_ADMIN 아니면 ROLE_USER 권한, SecurityConfig에 formLogin(loginPage /members/login, 성공 시 /), GET /members/login 로그인 폼 화면, 실패 시(?error) 안내 문구, navbar에 로그인 링크, BaseInitData에 개발·테스트용 회원 admin, user1, user2 (비밀번호 1234, 아이디별로 없을 때만 생성)
 - 이유: 로그인은 시큐리티가 처리: POST /members/login을 받으면 UserDetailsService로 회원을 찾고 PasswordEncoder로 비밀번호를 비교 (책 3-07), 로그인 폼 URL은 /members/login (설계 11), 화면 확인과 다음 기능(글쓴이·권한) 테스트를 위해 회원 시드 데이터 준비 (14168 BaseInitData 방식), 처음엔 "회원이 0명일 때만 생성"으로 했다가 012에서 가입 테스트한 회원 때문에 시드가 안 만들어지는 문제를 확인하고 아이디별 확인으로 변경
 - 결과: ./gradlew test 통과 (14개), 브라우저에서 틀린 비밀번호 → /members/login?error와 안내 문구, user1/1234 로그인 → 홈(질문 목록)으로 이동 확인
+
+### 013-02 로그아웃 준비, global.js (a[method] → 폼 전송)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/013-02)
+- 작업: static/resource/global.js 추가 (14168 그대로): method 속성이 있는 a 태그를 클릭하면 POST 폼을 만들어 _csrf(meta에서 읽음)와 _method를 담아 전송, onclick(confirm 등)이 false면 중단, select[value] 기본값 지정, layout.html에서 모든 페이지에 defer로 로드
+- 이유: a 태그(링크)는 GET만 보낼 수 있어서, 로그아웃·삭제처럼 상태를 바꾸는 요청을 링크 모양 그대로 POST/DELETE로 보내기 위해 (14168 42~44강), 책은 삭제를 GET 링크 + JS location.href로 처리해서 CSRF 보호를 받지 못함, 011-02에서 넣은 meta _csrf를 여기서 사용
+- 결과: ./gradlew test 통과 (14개), 브라우저에서 /resource/global.js 200, 모든 페이지에 script 포함 확인 (실제 동작은 013-03 로그아웃에서 확인)
