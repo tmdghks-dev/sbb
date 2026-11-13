@@ -10,6 +10,62 @@
 ## 기술 스택
 
 - Spring Boot 4.1.2, Java 25, Gradle 9.8.2 (Kotlin DSL)
+- Spring Data JPA, H2 (dev: 파일 DB `./db_dev`, test: 메모리 DB), Thymeleaf + Layout Dialect, Spring Security 7, Validation, commonmark
+- Bootstrap 5.3.8 (cdnjs), Pretendard 폰트
+
+## 실행 방법
+
+```bash
+./gradlew bootRun   # http://localhost:8080 (dev 프로필)
+./gradlew test      # test 프로필, 메모리 DB
+```
+
+- 개발용 회원: `admin`, `user1`, `user2` (비밀번호 모두 `1234`, `BaseInitData`가 생성)
+- 개발 실행 시 페이징 확인용 질문 300개가 함께 생성됨 (dev 프로필만)
+- H2 콘솔: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:./db_dev`, 사용자 `sa`)
+
+## 구현한 기능 (책 2장·3장)
+
+| 기능 | URL | 커밋 |
+|---|---|---|
+| 질문 목록·페이징·검색 | `GET /questions?page=&kw=` | 005, 010, 019 |
+| 질문 상세 (마크다운) | `GET /questions/{id}` | 005, 018 |
+| 질문 등록 | `GET·POST /questions/write` | 008 |
+| 질문 수정·삭제 | `GET·PUT /questions/{id}/modify`, `DELETE /questions/{id}/delete` | 015 |
+| 답변 등록·수정·삭제 | `POST /questions/{id}/answers/write`, `GET·PUT …/answers/{id}/modify`, `DELETE …/answers/{id}/delete` | 006, 015 |
+| 추천 | `POST /questions/{id}/vote`, `POST …/answers/{id}/vote` | 016 |
+| 회원가입·로그인·로그아웃 | `/members/join`, `/members/login`, `POST /members/logout` | 012, 013 |
+
+## 책(SBB)과 비교한 개선점
+
+| # | 책(SBB) | 이 프로젝트 | 출처 |
+|---|---|---|---|
+| 1 | properties 하나, 테스트도 개발 DB(`~/local`) 사용 | yaml 프로필 3개, 테스트는 메모리 DB | 14163·14168 |
+| 2 | 테스트가 개발 DB에 데이터만 넣고 assert 없음 | `@Transactional` 롤백 + 실제 assert (테스트 25개) | 14163 |
+| 3 | 엔티티마다 id·날짜 중복, `LocalDateTime.now()` 직접 입력 | `BaseEntity` + JPA Auditing | 14168 |
+| 4 | `@Setter`로 어디서나 값 변경 | 생성자 + 도메인 메서드(`modify`, `addAnswer`, `vote`) | 14168 |
+| 5 | `answerRepository.save`, AnswerService | `addAnswer` + cascade PERSIST, `deleteAnswer` + orphanRemoval (Answer 전용 Repository·Service 없음) | 14163·14168 |
+| 6 | `@ManyToOne` 기본값 EAGER | 모두 LAZY | 14163 |
+| 7 | 서비스에 트랜잭션 없음, 매번 `save()` | 컨트롤러 액션에 `@Transactional`(조회 readOnly) + dirty checking, `auto-commit: false` | 14168 |
+| 8 | 삭제·추천·로그아웃이 GET (`location.href`) | `_method`로 PUT/DELETE, `a[method]` → CSRF 토큰이 담긴 폼 전송, POST 로그아웃 | 14168 |
+| 9 | `/question/detail/1`, `/answer/create/1` | `/questions/1`, `/questions/1/answers/write` | 14163·14168 |
+| 10 | 폼 클래스, 오류 순서 무작위 | 컨트롤러 안 record 폼 + 오류 정렬 + 첫 오류 필드 focus | 14168 |
+| 11 | bootstrap 파일을 static에 직접 넣음 | cdnjs + Pretendard | 14163 |
+| 12 | 루트 패키지에 클래스가 섞여 있음 | `domain/global` 패키지 구조 | 14168 |
+| 13 | 템플릿을 고치면 재시작 필요 | dev는 템플릿을 소스 폴더에서 읽고 캐시 끔 | 14168 |
+| 14 | 작성자 비교를 문자열(username)로 컨트롤러마다 반복 | 엔티티 `isAuthor()`에서 id로 비교 (LAZY 프록시도 안전) | 직접 (검증 중 발견) |
+
+## Boot 4에서 책 코드가 그대로 안 되던 곳
+
+- **로그아웃**: Spring Security 7은 CSRF가 켜져 있으면 로그아웃을 POST로만 받음 → 책의 GET 로그아웃(`AntPathRequestMatcher`) 대신 POST (013-03)
+- **`@PreAuthorize`**: `@EnableMethodSecurity`가 없으면 오류 없이 무시됨 (014-01)
+- **마크다운**: Thymeleaf 3.1.5는 `th:utext` 안의 `${@commonUtil...}` 빈 호출을 막음 → 컨트롤러가 모델로 넘김 (018-01)
+- **중복 가입 처리**: 트랜잭션이 컨트롤러에 있어서 DB 예외를 catch하면 트랜잭션이 롤백 전용이 됨 → 저장 전에 조회로 확인 (012-03)
+- **답변 앵커**: save 없이 cascade로 저장하면 커밋 전까지 id가 0 → `flush`로 INSERT를 먼저 실행 (017-01)
+
+## 아직 하지 않은 것 (선택)
+
+MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash 메시지, 권한 오류 403 통일, 마크다운 raw HTML 이스케이프(XSS 방지), 목록의 답변 수 N+1 개선, 페이지 번호 1부터 표시, 책 4장 배포, 3-14 도전과제
 
 ## 작업내역
 
@@ -330,3 +386,9 @@
 - 작업: QuestionRepository.findAllByKeyword(kw, pageable): select distinct q … left outer join q.author / q.answers / a.author … like %:kw% (JPQL, 텍스트 블록), QuestionService.findPage가 findAllByKeyword 사용, Specification 코드와 JpaSpecificationExecutor 제거
 - 이유: 책 3-13처럼 같은 검색을 JPQL로도 작성해 두 방식을 비교 (Criteria API는 자바 코드로 조립, JPQL은 SQL과 비슷한 문자열), JPQL은 연관관계 필드(q.author, q.answers)로 바로 조인할 수 있어 on 조건 없이 짧게 표현 가능, 책은 교체 후에도 Specification 메서드를 쓰지 않는 코드로 남겨 둠 → 사용하지 않는 코드는 지움 (019-01 커밋에 기록이 남아 있음)
 - 결과: ./gradlew test 통과 (25개, 검색 테스트 5개 그대로 통과), 브라우저에서 019-01과 같은 결과: "[1" 검색 10개·페이지 이동 시 검색어 유지, "자동" 검색 1건 확인
+
+### 019-03 1단계 마무리, README 정리 (실행 방법·기능·개선점)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/019-03)
+- 작업: README 상단에 기술 스택, 실행 방법(개발 회원·H2 콘솔), 구현 기능과 URL 표, 책과 비교한 개선점 14개, Boot 4에서 책 코드가 그대로 안 되던 곳 5개, 아직 하지 않은 선택 항목 정리
+- 이유: 1단계(책 2·3장 기능)를 마치고 결과물을 한눈에 볼 수 있게 하기 위해, 다음 순서인 하이퍼프레임 영상("점프 투 스프링부트를 구현했는데 이런 개선점이 있었다")의 대본 자료로 쓰기 위해 (강사 지시: 1단계 후 영상 제작)
+- 결과: ./gradlew test 통과 (25개), README 내용은 각 작업 커밋의 결과와 대조해서 작성
