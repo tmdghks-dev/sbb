@@ -2,11 +2,12 @@ package com.back.domain.question.question.repository;
 
 import com.back.domain.question.question.entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface QuestionRepository extends JpaRepository<Question, Integer> {
+public interface QuestionRepository extends JpaRepository<Question, Integer>, JpaSpecificationExecutor<Question> {
     // SELECT * FROM question WHERE subject = ?
     Optional<Question> findBySubject(String subject);
 

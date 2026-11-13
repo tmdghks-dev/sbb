@@ -201,3 +201,4 @@ class QuestionRepositoryTest {
         assertThat(question.getVoters()).hasSize(2);
     }
 }
+

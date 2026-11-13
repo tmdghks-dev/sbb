@@ -39,10 +39,12 @@ public class QuestionController {
     @Transactional(readOnly = true)
     public String showList(
             @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String kw,
             Model model
     ) {
-        Page<Question> paging = questionService.findPage(page);
+        Page<Question> paging = questionService.findPage(page, kw);
         model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);
         return "question/question/list";
     }
 

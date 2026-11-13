@@ -318,3 +318,9 @@
 - 작업: commonmark 0.24.0 의존성 (Boot BOM 밖이라 버전 명시), global/util/CommonUtil(@Component).markdown(): 마크다운 → HTML, 상세 화면 질문·답변 내용을 th:utext="${commonUtil.markdown(...)}"로 출력, QuestionController 상세 액션에서 commonUtil을 모델에 넣어 줌, CommonUtilTest: 제목·굵게·코드·목록 변환 확인
 - 이유: 질문·답변에 마크다운(제목, 굵게, 목록, 코드 블록)을 쓸 수 있게 (책 3-12), 책은 템플릿에서 ${@commonUtil.markdown(...)}로 빈을 직접 호출 → Boot 4의 Thymeleaf 3.1.5에서는 이 위치의 빈 호출이 보안 제한으로 막혀 템플릿 오류가 남(직접 확인) → 모델로 넘겨서 호출, 주의: 마크다운 안의 raw HTML도 그대로 출력되어 XSS 위험이 있음 (이스케이프는 선택 목록, 책도 같은 상태)
 - 결과: ./gradlew test 통과 (20개), 브라우저에서 마크다운으로 질문 작성 → h2 제목, 굵은 글씨, 목록 2개, 코드 블록(pre > code)으로 렌더링 확인
+
+### 019-01 검색, Specification으로 제목·내용·작성자·답변 검색
+- [링크](https://github.com/tmdghks-dev/sbb/commit/019-01)
+- 작업: QuestionRepository에 JpaSpecificationExecutor 추가, QuestionService.findPage(page, kw): Specification(질문 작성자·답변·답변 작성자 LEFT JOIN, distinct)으로 제목·내용·질문 작성자·답변 내용·답변 작성자 중 하나라도 kw를 포함하면 검색, 목록 액션에 @RequestParam(defaultValue = "") String kw, 모델에 kw, 목록 화면: 검색창과 찾기 버튼, 숨은 searchForm(kw, page)으로 페이지 이동 시에도 검색어 유지, QuestionServiceTest 5개: 전체, 제목, 답변 내용(질문 중복 없음), 질문 작성자, 답변 작성자 검색
+- 이유: 질문을 검색하는 기능 (책 3-13), 답변이 여러 개 걸리는 질문이 여러 번 나오지 않게 distinct, 페이지 링크와 검색을 한 폼으로 보내서 검색 결과 안에서 페이지를 이동할 수 있게 (책의 searchForm 방식 그대로), 책은 Specification과 @Query를 차례로 구현 → 019-02에서 @Query로 교체
+- 결과: ./gradlew test 통과 (25개), 브라우저에서 "[1" 검색 → [199]부터 10개와 0~5 페이지, 1페이지로 이동해도 검색어 유지([189]부터), "자동"(답변 내용) 검색 → 2번 질문 1건 확인
