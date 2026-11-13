@@ -186,3 +186,9 @@
 - 작업: templates/navbar.html: SBB 로고(홈 링크)와 질문 목록 링크, 좁은 화면용 햄버거 버튼, layout.html에서 th:replace="~{navbar :: navbarFragment}"로 모든 페이지 상단에 포함, 햄버거 메뉴 동작을 위해 cdnjs Bootstrap JS(bundle) 추가
 - 이유: 어느 페이지에서든 홈과 질문 목록으로 이동하기 위해 (책 3-01), 레이아웃에 한 번만 넣어 모든 페이지에 적용, 책은 bootstrap.min.js를 static에 직접 넣음 → CSS와 같이 cdnjs 사용 (14163 방식), 책 순서대로 질문 등록(2-16) 다음에 진행
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 모든 페이지 상단에 navbar 표시, 폭 400px에서 햄버거 버튼을 누르면 메뉴가 펼쳐짐 확인
+
+### 010-01 페이징, 개발 환경용 테스트 데이터 300개
+- [링크](https://github.com/tmdghks-dev/sbb/commit/010-01)
+- 작업: BaseInitData에 work2 추가: 질문 300개("테스터 데이터입니다:[001]" ~ [300]) 생성, 이미 300개 이상이면 건너뜀, work2를 실행하는 ApplicationRunner 빈은 @Profile("dev")로 개발 환경에서만, @Order로 work1 다음에 실행
+- 이유: 페이징을 확인하려면 데이터가 많아야 함 (책 3-02), 책은 테스트 코드로 개발 DB에 300개를 넣음 → 이 프로젝트의 테스트는 메모리 DB를 쓰고 질문 2개를 기준으로 단언하므로, 개발 환경 초기 데이터로 생성, 강사의 BaseInitData 구조(self 프록시 + @Transactional) 그대로 사용
+- 결과: ./gradlew test 통과 (11개, test 프로필에서는 work2가 실행되지 않음), 개발 실행 시 질문 목록에 302개가 한 페이지에 모두 표시됨 확인 → 010-02에서 페이징
