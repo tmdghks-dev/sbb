@@ -424,3 +424,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: 기능 번호마다 그 기능의 마지막 커밋에 태그 001 ~ 019 추가, README에 기능별 바로가기 표: 그 시점 코드(tree/번호), 그 기능에서 바뀐 내용(compare/이전번호...번호)
 - 이유: 커밋별 태그(001-01 …)만 있으면 54개라서 GitHub에서 원하는 기능을 찾기 어려움, 강사 레포처럼 번호로 바로 들어갈 수 있게 (github.com/tmdghks-dev/sbb/tree/015 처럼)
 - 결과: ./gradlew test 통과 (25개), 태그 19개 생성 확인
+
+### 020-01 1단계 보강, [실험] mappedBy 없는 OneToMany는 중간 테이블을 만든다
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-01)
+- 작업: Question.answers의 @OneToMany에서 mappedBy를 일부러 제거 (실험용, 다음 커밋에서 복구), 테스트 실행 로그에서 생성되는 테이블과 INSERT 확인
+- 이유: mappedBy가 왜 필요한지 결과로 직접 확인하기 위해 (14163 007~013, 강사 레포 004-03), mappedBy가 없으면 JPA는 Question→Answer(@OneToMany)와 Answer→Question(@ManyToOne)을 서로 다른 관계로 봄, 003-04에서는 이유를 글로만 적었고, 계획 대비 빠진 실험을 보강
+- 결과: ./gradlew test 통과 (25개), DDL 로그에 create table question_answers (question_id, answers_id) 중간 테이블 생성, 답변을 추가할 때 answer.question_id와 별도로 question_answers에도 INSERT가 한 번 더 실행됨 → 같은 관계를 두 군데에 저장
