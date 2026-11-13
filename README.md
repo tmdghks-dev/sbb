@@ -264,3 +264,9 @@
 - 작업: Question·Answer에 @ManyToOne(fetch = LAZY) Member author, 생성자와 addAnswer(author, content)에 author 추가, 질문·답변 작성 액션에서 Principal(로그인 아이디)로 회원을 조회해 author로 저장, BaseInitData: 샘플 질문은 user1, 답변은 user2가 쓴 것으로, 목록에 글쓴이 열, 상세 질문·답변 카드에 글쓴이 표시 (author?.username로 글쓴이가 없는 예전 데이터도 오류 없이), 테스트 t9 수정(addAnswer에 user2), t12 추가: 질문 user1·답변 user2 확인
 - 이유: 누가 쓴 글인지 저장하고 보여주기 위해 (책 3-08), 글쓴이도 연관 엔티티이므로 LAZY (14163), 현재 로그인 사용자는 책과 같이 Principal로 받음
 - 결과: ./gradlew test 통과 (15개), 브라우저에서 user2로 질문과 답변 작성 → 상세 카드와 목록 글쓴이에 user2 표시, 샘플 데이터는 user1로 표시 확인
+
+### 015-01 수정·삭제 준비, _method로 PUT·DELETE 사용 (HiddenHttpMethodFilter)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-01)
+- 작업: application.yaml에 spring.mvc.hiddenmethod.filter.enabled: true, BackApplicationTests에 HiddenHttpMethodFilter 빈이 등록되었는지 확인하는 테스트 추가
+- 이유: HTML 폼은 GET·POST만 보낼 수 있음 → POST에 _method=PUT/DELETE를 담아 보내면 스프링이 PUT/DELETE 요청으로 바꿔 처리 (14168 41강), 수정은 @PutMapping, 삭제는 @DeleteMapping으로 행위를 HTTP 메서드로 구분하기 위해 (14163 37강 URL 표), Boot는 이 필터가 기본으로 꺼져 있어서 설정으로 켬
+- 결과: ./gradlew test 통과 (16개, 필터 등록 테스트 포함)
