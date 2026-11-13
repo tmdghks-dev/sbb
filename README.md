@@ -210,3 +210,9 @@
 - 작업: spring-boot-starter-security(+ security-test) 의존성 추가, global/security/SecurityConfig: SecurityFilterChain에서 /favicon.ico, /h2-console/**, /** 모두 permitAll, H2 콘솔용: frameOptions sameOrigin(콘솔이 frame을 씀), /h2-console/** CSRF 검사 제외
 - 이유: 회원가입·로그인을 만들기 위한 준비 (책 3-05, 14168 46강), 시큐리티를 넣으면 기본값으로 모든 요청이 로그인 필요 + POST/PUT/DELETE에 CSRF 토큰 검사 → 기존 화면이 막히지 않게 일단 전체 허용, th:action으로 만든 폼은 CSRF 토큰(_csrf)이 자동으로 들어가서 그대로 동작
 - 결과: ./gradlew test 통과 (12개), 브라우저에서 로그인 없이 목록·상세 접근, 답변 폼에 _csrf hidden 자동 포함, 폼으로 답변 등록 성공, 토큰 없이 POST → 403, H2 콘솔 접속 확인
+
+### 011-02 시큐리티, 정적 파일 위치 통일과 CSRF meta
+- [링크](https://github.com/tmdghks-dev/sbb/commit/011-02)
+- 작업: style.css를 static/resource/로 이동하고 레이아웃 경로 변경, SecurityConfig에 /resource/** permitAll, layout.html에 <meta name="_csrf" th:content="${_csrf.token}">
+- 이유: 정적 파일을 한 폴더에 모아 두면 시큐리티 허용 규칙을 /resource/** 하나로 단순하게 유지할 수 있음 (14168 46강), JS로 만든 폼(015의 a[method] 삭제 링크 등)이 CSRF 토큰을 읽어 갈 수 있게 페이지마다 meta로 넣어 둠 (14168 46강)
+- 결과: ./gradlew test 통과 (12개), 브라우저에서 /resource/style.css 200(예전 /style.css는 404), Pretendard 그대로 적용, meta _csrf에 토큰 값 확인

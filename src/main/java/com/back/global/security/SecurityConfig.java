@@ -15,6 +15,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers("/favicon.ico").permitAll()
+                                .requestMatchers("/resource/**").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()
                                 .requestMatchers("/**").permitAll() // 추후 상황에 맡게 변경
                                 .anyRequest().authenticated()
