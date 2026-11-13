@@ -144,3 +144,9 @@
 - 작업: thymeleaf-layout-dialect 의존성 추가 (버전은 Boot BOM이 관리), templates/layout.html: doctype·head·Bootstrap·style.css를 한 곳에 두고 layout:fragment="content" 자리에 페이지 내용을 끼움, 목록·상세는 layout:decorate="~{layout}"로 레이아웃 사용, 페이지마다 반복하던 link 태그 제거
 - 이유: 페이지마다 head와 CSS 링크를 반복하지 않고, 표준 HTML 구조(doctype, head, body)를 한 곳에서 관리하기 위해 (책 2-15, 14168 44강)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 상세 화면이 레이아웃을 거쳐 Bootstrap·Pretendard가 그대로 적용되고 문서 제목이 SBB로 표시됨 확인
+
+### 007-03 화면, 페이지별 title (layout:title-pattern)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/007-03)
+- 작업: layout.html의 title에 layout:title-pattern="$CONTENT_TITLE ,  $LAYOUT_TITLE", 목록 페이지 title "질문 목록", 상세 페이지 title "{id}번 질문 - {제목}"
+- 이유: 레이아웃을 쓰면 모든 페이지 제목이 같아지는 문제를 해결하고, 브라우저 탭에서 페이지를 구분하기 위해 (14168 45강)
+- 결과: ./gradlew test 통과 (11개), 브라우저 탭 제목: 목록 "질문 목록 ,  SBB", 상세 "2번 질문 - 스프링부트 모델 질문입니다. ,  SBB" 확인

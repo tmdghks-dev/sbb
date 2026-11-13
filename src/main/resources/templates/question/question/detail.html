@@ -1,5 +1,9 @@
 <html layout:decorate="~{layout}">
 
+<head>
+    <title th:text="|${question.id}번 질문 - ${question.subject}|"></title>
+</head>
+
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
