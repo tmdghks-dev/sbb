@@ -6,6 +6,7 @@ import com.back.global.exception.DataNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ public class AnswerController {
 
     @PostMapping("/questions/{questionId}/answers/write")
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public String write(
             @PathVariable int questionId,
             @Valid WriteForm writeForm

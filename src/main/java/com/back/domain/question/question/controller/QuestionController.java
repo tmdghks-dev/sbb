@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -44,12 +45,14 @@ public class QuestionController {
     }
 
     @GetMapping("/questions/write")
+    @PreAuthorize("isAuthenticated()")
     public String showWrite(@ModelAttribute("form") WriteForm form) {
         return "question/question/write";
     }
 
     @PostMapping("/questions/write")
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public String write(
             @ModelAttribute("form") @Valid WriteForm form,
             BindingResult bindingResult

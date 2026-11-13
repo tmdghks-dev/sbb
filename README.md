@@ -252,3 +252,9 @@
 - 작업: thymeleaf-extras-springsecurity6 의존성 추가 (버전은 Boot BOM 관리), SecurityConfig에 logout(logoutUrl /members/logout, 성공 시 /, 세션 무효화), navbar: 비로그인(sec:authorize="isAnonymous()")이면 로그인·회원가입, 로그인 상태면 "아이디님"과 로그아웃 링크 <a method="POST" href="/members/logout">
 - 이유: Spring Security 7은 CSRF가 켜져 있으면 로그아웃을 POST로만 받음 → 책의 GET 로그아웃(AntPathRequestMatcher)은 그대로 쓸 수 없음 (설계 17), 링크 모양은 그대로 두고 013-02의 global.js가 CSRF 토큰을 담은 POST 폼으로 바꿔 전송 (14168 a[method]), 로그인 여부에 따라 메뉴를 다르게 보여주기 위해 sec:authorize 사용 (책 3-07)
 - 결과: ./gradlew test 통과 (14개), 브라우저에서 비로그인 navbar: 로그인/회원가입, user1 로그인 후: user1님/로그아웃, GET /members/logout은 404이고 로그인 유지, 로그아웃 링크 클릭(POST) → 로그아웃되어 다시 로그인/회원가입 표시 확인
+
+### 014-01 글쓴이, 로그인한 사람만 질문·답변 작성 (@EnableMethodSecurity + @PreAuthorize)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/014-01)
+- 작업: SecurityConfig에 @EnableMethodSecurity, 질문 등록 폼·처리, 답변 등록 액션에 @PreAuthorize("isAuthenticated()")
+- 이유: 글쓴이를 저장하려면 작성할 때 로그인 사용자가 있어야 함 (책 3-08), @EnableMethodSecurity가 없으면 @PreAuthorize가 오류 없이 조용히 무시되므로 반드시 함께 추가 (책 v3.08, 계획 검증에서 발견), 책은 글쓴이 필드를 먼저 넣지만, 그러면 비로그인 작성 시 오류가 나는 중간 상태가 생겨서 로그인 확인을 먼저 적용
+- 결과: ./gradlew test 통과 (14개), 브라우저에서 비로그인으로 /questions/write → 로그인 페이지로 이동, 비로그인 답변 등록 → 로그인 페이지로 이동, user1 로그인 후 질문 등록 폼 정상 표시 확인
