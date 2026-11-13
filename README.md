@@ -54,3 +54,9 @@
 - 작업: global/jpa/entity/BaseEntity 추가: @MappedSuperclass, int id(IDENTITY), @CreatedDate createDate, @LastModifiedDate modifyDate, id 기반 equals/hashCode, BackApplication에 @EnableJpaAuditing
 - 이유: 책은 Question·Answer마다 id·createDate를 중복 선언하고 LocalDateTime.now()를 직접 넣음, 공통 필드를 부모 클래스로 모으고 날짜는 Auditing이 자동으로 채우게 하기 위해 (14168), equals/hashCode는 컬렉션에서 remove가 정확히 동작하게 하기 위함 (14168 38강). 주의: id만 비교하므로 저장 전(id=0) 엔티티끼리는 같다고 판단됨
 - 결과: ./gradlew test 통과 (1개), 아직 상속하는 엔티티가 없어 테이블은 생기지 않음
+
+### 003-02 엔티티, Question 생성
+- [링크](https://github.com/tmdghks-dev/sbb/commit/003-02)
+- 작업: domain/question/question/entity/Question: BaseEntity 상속, subject(length 200), content(TEXT), @Getter·@NoArgsConstructor만 쓰고 @Setter 없음, 생성자 Question(subject, content)로 생성, 패키지는 처음부터 14168 구조(domain/애그리거트/엔티티/계층) 사용
+- 이유: 책은 @Setter를 열어 두고 서비스에서 new 후 setter로 값을 채움 → 어디서나 값이 바뀔 수 있음, 생성은 생성자로, 변경은 나중에 도메인 메서드(modify)로만 하게 하기 위해 (14168 Post)
+- 결과: ./gradlew test 통과 (1개), SQL 로그에 create table question (id, create_date, modify_date, subject varchar(200), content text) 확인
