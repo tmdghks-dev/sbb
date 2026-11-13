@@ -306,3 +306,9 @@
 - 작업: Question·Answer에 @ManyToMany Set<Member> voters = new HashSet<>()와 vote(member), QuestionService.vote, voteAnswer, POST /questions/{id}/vote, POST /questions/{questionId}/answers/{id}/vote (로그인 필요), 상세 화면 질문·답변에 추천 버튼과 추천 수 배지, 링크는 a[method=POST] + confirm, 테스트 t15: 같은 회원이 두 번 추천해도 1번으로 셈
 - 이유: 질문·답변을 추천하는 기능 (책 3-10), Set이라 같은 회원은 한 번만 들어감, BaseEntity의 id 기반 equals로 같은 회원을 판별, 책의 voter 필드는 초기화가 없어 null 위험 → 14168처럼 컬렉션을 바로 초기화, 책은 GET /question/vote/{id} → 데이터를 바꾸는 요청이라 POST + CSRF (014 이후의 a[method] 방식)
 - 결과: ./gradlew test 통과 (19개), SQL 로그에 question_voters, answer_voters 중간 테이블 생성, 브라우저에서 user2가 1번 질문 추천 → 확인창 → 0에서 1, 한 번 더 추천해도 1 유지, GET /questions/1/vote는 405 확인 (답변 추천은 같은 구조로 구현, 화면 확인은 질문 추천만 함)
+
+### 017-01 앵커, 답변 작성·수정·추천 후 그 답변 위치로 이동
+- [링크](https://github.com/tmdghks-dev/sbb/commit/017-01)
+- 작업: 상세 화면 답변 카드마다 <a th:id="answer_{id}">, 답변 작성·수정·추천 후 redirect:/questions/{qid}#answer_{id}, QuestionService.writeAnswer에서 addAnswer 후 flush로 INSERT를 먼저 실행해 답변 id를 얻음
+- 이유: 답변이 많을 때 작성·수정·추천 후 페이지 맨 위로 돌아가지 않고 해당 답변을 바로 보게 (책 3-11), 이 프로젝트는 save 없이 cascade로 저장하므로 커밋 전까지 INSERT가 안 되어 id가 0 → IDENTITY 전략은 INSERT를 해야 id가 생기므로 flush를 명시적으로 호출 (14163: INSERT 시점은 flush), 책은 AnswerService.create가 save 후 Answer를 반환하도록 바꿈
+- 결과: ./gradlew test 통과 (19개), 브라우저에서 답변 등록 → /questions/2#answer_5로 이동하고 해당 앵커 존재, 창 높이 500px에서 같은 주소를 열면 그 답변이 화면 맨 위(anchorTop 0)로 스크롤되는 것 확인

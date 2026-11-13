@@ -46,8 +46,8 @@ public class AnswerController {
         Question question = findQuestion(questionId);
         // save 를 호출하지 않는다. 트랜잭션이 끝날 때 cascade PERSIST 로 INSERT 된다.
         Member author = memberService.findByUsername(principal.getName()).get();
-        questionService.writeAnswer(question, author, writeForm.content);
-        return "redirect:/questions/" + questionId;
+        Answer answer = questionService.writeAnswer(question, author, writeForm.content);
+        return "redirect:/questions/%d#answer_%d".formatted(questionId, answer.getId());
     }
 
     public record ModifyForm(
@@ -85,7 +85,7 @@ public class AnswerController {
         Answer answer = findAnswerCheckAuthor(question, id, principal, "수정");
         // save 없이 dirty checking 으로 UPDATE 된다.
         questionService.modifyAnswer(answer, modifyForm.content);
-        return "redirect:/questions/" + questionId;
+        return "redirect:/questions/%d#answer_%d".formatted(questionId, answer.getId());
     }
 
     @DeleteMapping("/questions/{questionId}/answers/{id}/delete")
@@ -115,7 +115,7 @@ public class AnswerController {
                 .orElseThrow(() -> new DataNotFoundException("%d번 답변이 없습니다.".formatted(id)));
         Member voter = memberService.findByUsername(principal.getName()).get();
         questionService.voteAnswer(answer, voter);
-        return "redirect:/questions/" + questionId;
+        return "redirect:/questions/%d#answer_%d".formatted(questionId, answer.getId());
     }
 
     private Question findQuestion(int questionId) {

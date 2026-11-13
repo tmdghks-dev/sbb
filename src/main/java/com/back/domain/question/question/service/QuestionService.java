@@ -52,7 +52,11 @@ public class QuestionService {
     }
 
     public Answer writeAnswer(Question question, Member author, String content) {
-        return question.addAnswer(author, content);
+        Answer answer = question.addAnswer(author, content);
+        // 답변 id 는 INSERT 가 실행되어야 생긴다. (IDENTITY 전략)
+        // 작성 직후 그 답변 위치(#answer_id)로 이동하려면 id 가 필요하므로, 커밋 전에 flush 로 INSERT 를 먼저 실행한다.
+        questionRepository.flush();
+        return answer;
     }
 
     public void vote(Question question, Member voter) {
