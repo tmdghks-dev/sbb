@@ -228,3 +228,9 @@
 - 작업: SecurityConfig에 PasswordEncoder 빈(BCryptPasswordEncoder), MemberService: join(username, password, email)에서 비밀번호를 encode해서 저장, findByUsername, findByEmail, count, MemberServiceTest: 가입 시 비밀번호가 평문이 아닌 $2a$ 해시로 저장되고 matches로 확인되는지, 조회 메서드 동작
 - 이유: 비밀번호를 평문으로 저장하면 DB가 유출될 때 그대로 노출되므로 단방향 해시(BCrypt)로 저장 (책 3-06), PasswordEncoder를 빈으로 등록해 서비스와 (013의) 로그인 처리가 같은 방식으로 비교하게, 테스트는 14163과 같은 형식(test 프로필 + @Transactional 롤백)
 - 결과: ./gradlew test 통과 (14개)
+
+### 012-03 회원가입, 가입 폼(GET·POST /members/join)과 검증
+- [링크](https://github.com/tmdghks-dev/sbb/commit/012-03)
+- 작업: MemberController: 중첩 record JoinForm(username 3~25자, password1, password2, email 형식) + @Valid/BindingResult, 비밀번호 확인이 다르면 password2에 오류, 아이디·이메일이 이미 있으면 각 필드에 오류 (rejectValue, 메시지는 순번-필드명-메시지 형식), templates/member/member/join.html (form_errors fragment 재사용), navbar에 회원가입 링크
+- 이유: 책 3-06의 회원가입을 14168 폼 방식(같은 URL GET·POST, record 폼, 오류 정렬·focus)으로 구현, URL은 /members/join (설계 11), 책은 저장 중 DataIntegrityViolationException을 catch → 이 프로젝트는 컨트롤러에 트랜잭션이 있어 그 예외가 나면 트랜잭션이 롤백 전용이 되므로, 저장 전에 미리 조회해서 중복을 막음 (unique 제약은 마지막 안전장치)
+- 결과: ./gradlew test 통과 (14개), 브라우저에서 비밀번호 확인 불일치 → 오류 표시 + 비밀번호 확인 칸 focus, 정상 가입 → 홈(질문 목록)으로 이동, 같은 아이디로 가입 → "이미 사용중인 사용자ID입니다.", 같은 이메일 → "이미 사용중인 이메일입니다." 확인
