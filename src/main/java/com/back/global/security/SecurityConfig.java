@@ -36,6 +36,13 @@ public class SecurityConfig {
                         formLogin -> formLogin
                                 .loginPage("/members/login")
                                 .defaultSuccessUrl("/")
+                )
+                // CSRF 가 켜져 있으면 로그아웃은 POST 만 받는다. (화면의 로그아웃 링크는 global.js 로 POST 전송)
+                .logout(
+                        logout -> logout
+                                .logoutUrl("/members/logout")
+                                .logoutSuccessUrl("/")
+                                .invalidateHttpSession(true)
                 );
 
         return http.build();

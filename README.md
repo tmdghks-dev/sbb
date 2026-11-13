@@ -246,3 +246,9 @@
 - 작업: static/resource/global.js 추가 (14168 그대로): method 속성이 있는 a 태그를 클릭하면 POST 폼을 만들어 _csrf(meta에서 읽음)와 _method를 담아 전송, onclick(confirm 등)이 false면 중단, select[value] 기본값 지정, layout.html에서 모든 페이지에 defer로 로드
 - 이유: a 태그(링크)는 GET만 보낼 수 있어서, 로그아웃·삭제처럼 상태를 바꾸는 요청을 링크 모양 그대로 POST/DELETE로 보내기 위해 (14168 42~44강), 책은 삭제를 GET 링크 + JS location.href로 처리해서 CSRF 보호를 받지 못함, 011-02에서 넣은 meta _csrf를 여기서 사용
 - 결과: ./gradlew test 통과 (14개), 브라우저에서 /resource/global.js 200, 모든 페이지에 script 포함 확인 (실제 동작은 013-03 로그아웃에서 확인)
+
+### 013-03 로그아웃, POST 로그아웃과 navbar 로그인 상태 표시
+- [링크](https://github.com/tmdghks-dev/sbb/commit/013-03)
+- 작업: thymeleaf-extras-springsecurity6 의존성 추가 (버전은 Boot BOM 관리), SecurityConfig에 logout(logoutUrl /members/logout, 성공 시 /, 세션 무효화), navbar: 비로그인(sec:authorize="isAnonymous()")이면 로그인·회원가입, 로그인 상태면 "아이디님"과 로그아웃 링크 <a method="POST" href="/members/logout">
+- 이유: Spring Security 7은 CSRF가 켜져 있으면 로그아웃을 POST로만 받음 → 책의 GET 로그아웃(AntPathRequestMatcher)은 그대로 쓸 수 없음 (설계 17), 링크 모양은 그대로 두고 013-02의 global.js가 CSRF 토큰을 담은 POST 폼으로 바꿔 전송 (14168 a[method]), 로그인 여부에 따라 메뉴를 다르게 보여주기 위해 sec:authorize 사용 (책 3-07)
+- 결과: ./gradlew test 통과 (14개), 브라우저에서 비로그인 navbar: 로그인/회원가입, user1 로그인 후: user1님/로그아웃, GET /members/logout은 404이고 로그인 유지, 로그아웃 링크 클릭(POST) → 로그아웃되어 다시 로그인/회원가입 표시 확인
