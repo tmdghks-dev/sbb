@@ -150,3 +150,9 @@
 - 작업: layout.html의 title에 layout:title-pattern="$CONTENT_TITLE ,  $LAYOUT_TITLE", 목록 페이지 title "질문 목록", 상세 페이지 title "{id}번 질문 - {제목}"
 - 이유: 레이아웃을 쓰면 모든 페이지 제목이 같아지는 문제를 해결하고, 브라우저 탭에서 페이지를 구분하기 위해 (14168 45강)
 - 결과: ./gradlew test 통과 (11개), 브라우저 탭 제목: 목록 "질문 목록 ,  SBB", 상세 "2번 질문 - 스프링부트 모델 질문입니다. ,  SBB" 확인
+
+### 008-01 질문 등록, GET·POST /questions/write (같은 URL, 메서드로 구분)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/008-01)
+- 작업: QuestionController에 중첩 record WriteForm(subject, content), GET /questions/write: @ModelAttribute("form")로 빈 폼을 모델에 넣고 write 템플릿 표시, POST /questions/write: 저장 후 redirect:/questions/{id}, write.html: th:action(현재 URL로 전송), th:object="${form}", th:field="*{subject}", 목록에 질문 등록하기 버튼
+- 이유: 책은 GET /question/create + POST /question/create → 폼 보기와 처리를 같은 URL에 두고 HTTP 메서드로만 구분 (14168 26~28강), GET에서도 form을 모델에 넣어 두면 템플릿에서 ${form?.subject} 대신 *{subject}로 일관되게 쓸 수 있음 (14168), 폼 DTO는 컨트롤러 안 record로 (14168 40강), 폼 보기 액션은 DB에 접근하지 않아 @Transactional 없음 (14168 showWrite)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 목록 → 질문 등록하기 → 제목·내용 입력 → 저장 → 새 질문 상세로 이동 확인

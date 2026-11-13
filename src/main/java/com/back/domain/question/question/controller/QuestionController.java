@@ -8,7 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -23,6 +25,24 @@ public class QuestionController {
         List<Question> questions = questionService.findAll();
         model.addAttribute("questions", questions);
         return "question/question/list";
+    }
+
+    public record WriteForm(
+            String subject,
+            String content
+    ) {
+    }
+
+    @GetMapping("/questions/write")
+    public String showWrite(@ModelAttribute("form") WriteForm form) {
+        return "question/question/write";
+    }
+
+    @PostMapping("/questions/write")
+    @Transactional
+    public String write(@ModelAttribute("form") WriteForm form) {
+        Question question = questionService.write(form.subject, form.content);
+        return "redirect:/questions/" + question.getId();
     }
 
     @GetMapping("/questions/{id}")
