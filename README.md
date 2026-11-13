@@ -126,3 +126,9 @@
 - 작업: QuestionController GET /questions/{id} (@PathVariable int id, readOnly 트랜잭션) → question/question/detail, global/exception/DataNotFoundException(@ResponseStatus 404, reason entity not found), 질문이 없으면 orElseThrow로 던짐, 상세 화면: 제목, 내용(pre-line), 답변 개수와 답변 목록, 목록의 제목을 상세 링크로 변경
 - 이유: URL은 /questions/{id} (14163 37강 표, 14168 /posts/{id}), findById().get()은 없는 id에서 NoSuchElementException(500)이 나므로 의미 있는 404로 응답하기 위해 (책 2-10, 14163 35강), @PathVariable은 int로 통일 (14168), 답변 목록은 LAZY 컬렉션이라 화면을 그릴 때 조회됨 (OSIV)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 /questions/2 → 제목·내용·답변 2개 표시, /questions/999 → 404 entity not found 확인
+
+### 006-01 답변 등록, POST /questions/{id}/answers/write (addAnswer, save 없음)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/006-01)
+- 작업: domain/question/answer/controller/AnswerController: POST /questions/{questionId}/answers/write, @Transactional, QuestionService.writeAnswer(question, content) → question.addAnswer(content), 상세 화면에 답변 입력 폼(textarea + 답변등록) 추가
+- 이유: 책은 POST /answer/create/{id} + AnswerService + answerRepository.save → 답변은 질문의 하위 리소스이므로 /questions/{id}/answers/write (14168 /posts/{postId}/comments/write), 답변은 질문을 통해서만 다루기로 해서 save 없이 addAnswer만 호출하고, 트랜잭션이 끝날 때 cascade PERSIST로 INSERT (14163 37강, 14168 writeComment), 처리 후 상세 페이지로 리다이렉트(PRG)해서 새로고침 시 중복 등록 방지 (14168 28강)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 1번 질문에 답변을 입력하고 등록 → /questions/1로 리다이렉트, 1개의 답변 표시, 로그에 save 호출 없이 insert answer 실행 확인

@@ -5,3 +5,8 @@
 <ul>
     <li th:each="answer : ${question.answers}" th:text="${answer.content}"></li>
 </ul>
+
+<form method="POST" th:action="@{|/questions/${question.id}/answers/write|}">
+    <textarea name="content" id="content" rows="15"></textarea>
+    <input type="submit" value="답변등록">
+</form>

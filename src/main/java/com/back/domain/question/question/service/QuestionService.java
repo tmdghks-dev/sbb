@@ -1,5 +1,6 @@
 package com.back.domain.question.question.service;
 
+import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,9 @@ public class QuestionService {
 
     public List<Question> findAll() {
         return questionRepository.findAll();
+    }
+
+    public Answer writeAnswer(Question question, String content) {
+        return question.addAnswer(content);
     }
 }
