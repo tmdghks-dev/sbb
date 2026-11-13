@@ -63,6 +63,32 @@
 - **중복 가입 처리**: 트랜잭션이 컨트롤러에 있어서 DB 예외를 catch하면 트랜잭션이 롤백 전용이 됨 → 저장 전에 조회로 확인 (012-03)
 - **답변 앵커**: save 없이 cascade로 저장하면 커밋 전까지 id가 0 → `flush`로 INSERT를 먼저 실행 (017-01)
 
+## 기능별 바로가기
+
+기능 번호마다 태그(`001`, `002` …)가 있어서, 그 기능이 끝난 시점의 코드와 그 기능에서 바뀐 내용을 바로 볼 수 있습니다. 세부 작업은 아래 `## 작업내역`의 커밋별 링크(`001-01` …)를 보세요.
+
+| 번호 | 기능 | 그 시점 코드 | 바뀐 내용 |
+|---|---|---|---|
+| 001 | 프로젝트 시작 | [001](https://github.com/tmdghks-dev/sbb/tree/001) | [001-01~02](https://github.com/tmdghks-dev/sbb/commits/001) |
+| 002 | 개발 환경 (H2·JPA·프로필·SQL 로그) | [002](https://github.com/tmdghks-dev/sbb/tree/002) | [001…002](https://github.com/tmdghks-dev/sbb/compare/001...002) |
+| 003 | 엔티티 (BaseEntity·Question·Answer) | [003](https://github.com/tmdghks-dev/sbb/tree/003) | [002…003](https://github.com/tmdghks-dev/sbb/compare/002...003) |
+| 004 | 리포지터리·테스트·초기 데이터 | [004](https://github.com/tmdghks-dev/sbb/tree/004) | [003…004](https://github.com/tmdghks-dev/sbb/compare/003...004) |
+| 005 | 질문 목록·상세 | [005](https://github.com/tmdghks-dev/sbb/tree/005) | [004…005](https://github.com/tmdghks-dev/sbb/compare/004...005) |
+| 006 | 답변 등록 | [006](https://github.com/tmdghks-dev/sbb/tree/006) | [005…006](https://github.com/tmdghks-dev/sbb/compare/005...006) |
+| 007 | 화면 (Bootstrap·레이아웃) | [007](https://github.com/tmdghks-dev/sbb/tree/007) | [006…007](https://github.com/tmdghks-dev/sbb/compare/006...007) |
+| 008 | 질문 등록·폼 검증 | [008](https://github.com/tmdghks-dev/sbb/tree/008) | [007…008](https://github.com/tmdghks-dev/sbb/compare/007...008) |
+| 009 | 내비게이션 바 | [009](https://github.com/tmdghks-dev/sbb/tree/009) | [008…009](https://github.com/tmdghks-dev/sbb/compare/008...009) |
+| 010 | 페이징 | [010](https://github.com/tmdghks-dev/sbb/tree/010) | [009…010](https://github.com/tmdghks-dev/sbb/compare/009...010) |
+| 011 | 시큐리티 도입 | [011](https://github.com/tmdghks-dev/sbb/tree/011) | [010…011](https://github.com/tmdghks-dev/sbb/compare/010...011) |
+| 012 | 회원가입 | [012](https://github.com/tmdghks-dev/sbb/tree/012) | [011…012](https://github.com/tmdghks-dev/sbb/compare/011...012) |
+| 013 | 로그인·로그아웃 | [013](https://github.com/tmdghks-dev/sbb/tree/013) | [012…013](https://github.com/tmdghks-dev/sbb/compare/012...013) |
+| 014 | 글쓴이 | [014](https://github.com/tmdghks-dev/sbb/tree/014) | [013…014](https://github.com/tmdghks-dev/sbb/compare/013...014) |
+| 015 | 수정·삭제 | [015](https://github.com/tmdghks-dev/sbb/tree/015) | [014…015](https://github.com/tmdghks-dev/sbb/compare/014...015) |
+| 016 | 추천 | [016](https://github.com/tmdghks-dev/sbb/tree/016) | [015…016](https://github.com/tmdghks-dev/sbb/compare/015...016) |
+| 017 | 앵커 | [017](https://github.com/tmdghks-dev/sbb/tree/017) | [016…017](https://github.com/tmdghks-dev/sbb/compare/016...017) |
+| 018 | 마크다운 | [018](https://github.com/tmdghks-dev/sbb/tree/018) | [017…018](https://github.com/tmdghks-dev/sbb/compare/017...018) |
+| 019 | 검색, 1단계 마무리 | [019](https://github.com/tmdghks-dev/sbb/tree/019) | [018…019](https://github.com/tmdghks-dev/sbb/compare/018...019) |
+
 ## 아직 하지 않은 것 (선택)
 
 MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash 메시지, 권한 오류 403 통일, 마크다운 raw HTML 이스케이프(XSS 방지), 목록의 답변 수 N+1 개선, 페이지 번호 1부터 표시, 책 4장 배포, 3-14 도전과제
@@ -392,3 +418,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: README 상단에 기술 스택, 실행 방법(개발 회원·H2 콘솔), 구현 기능과 URL 표, 책과 비교한 개선점 14개, Boot 4에서 책 코드가 그대로 안 되던 곳 5개, 아직 하지 않은 선택 항목 정리
 - 이유: 1단계(책 2·3장 기능)를 마치고 결과물을 한눈에 볼 수 있게 하기 위해, 다음 순서인 하이퍼프레임 영상("점프 투 스프링부트를 구현했는데 이런 개선점이 있었다")의 대본 자료로 쓰기 위해 (강사 지시: 1단계 후 영상 제작)
 - 결과: ./gradlew test 통과 (25개), README 내용은 각 작업 커밋의 결과와 대조해서 작성
+
+### 019-04 1단계 마무리, 기능별 태그(001~019)와 바로가기 표
+- [링크](https://github.com/tmdghks-dev/sbb/commit/019-04)
+- 작업: 기능 번호마다 그 기능의 마지막 커밋에 태그 001 ~ 019 추가, README에 기능별 바로가기 표: 그 시점 코드(tree/번호), 그 기능에서 바뀐 내용(compare/이전번호...번호)
+- 이유: 커밋별 태그(001-01 …)만 있으면 54개라서 GitHub에서 원하는 기능을 찾기 어려움, 강사 레포처럼 번호로 바로 들어갈 수 있게 (github.com/tmdghks-dev/sbb/tree/015 처럼)
+- 결과: ./gradlew test 통과 (25개), 태그 19개 생성 확인
