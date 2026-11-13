@@ -156,3 +156,9 @@
 - 작업: QuestionController에 중첩 record WriteForm(subject, content), GET /questions/write: @ModelAttribute("form")로 빈 폼을 모델에 넣고 write 템플릿 표시, POST /questions/write: 저장 후 redirect:/questions/{id}, write.html: th:action(현재 URL로 전송), th:object="${form}", th:field="*{subject}", 목록에 질문 등록하기 버튼
 - 이유: 책은 GET /question/create + POST /question/create → 폼 보기와 처리를 같은 URL에 두고 HTTP 메서드로만 구분 (14168 26~28강), GET에서도 form을 모델에 넣어 두면 템플릿에서 ${form?.subject} 대신 *{subject}로 일관되게 쓸 수 있음 (14168), 폼 DTO는 컨트롤러 안 record로 (14168 40강), 폼 보기 액션은 DB에 접근하지 않아 @Transactional 없음 (14168 showWrite)
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 목록 → 질문 등록하기 → 제목·내용 입력 → 저장 → 새 질문 상세로 이동 확인
+
+### 008-02 질문 등록, 서버 입력값 검증 (@Valid + BindingResult)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/008-02)
+- 작업: spring-boot-starter-validation(+ validation-test) 의존성 추가, WriteForm에 @NotBlank(제목·내용), @Size(max = 200)(제목), POST 액션에 @ModelAttribute("form") @Valid WriteForm form, BindingResult bindingResult (순서 중요), 오류가 있으면 같은 폼 화면을 다시 보여줌, write.html에 #fields.allErrors()로 오류 메시지 표시
+- 이유: 빈 제목·내용이 저장되는 것을 서버에서 막기 위해 (책 2-16, 14168 9~15강: 서버 검증은 무조건), BindingResult가 @Valid 바로 뒤에 있어야 예외 대신 오류 정보를 받아 폼을 다시 보여줄 수 있음 (14168), @ModelAttribute("form") 덕분에 다시 보여준 폼에 입력했던 값이 그대로 남음 (14168 입력값 유지), 책의 @NotEmpty는 공백만 입력해도 통과 → @NotBlank (14168)
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 제목만 입력하고 저장 → 같은 화면에 "내용을 입력해주세요." 표시, 입력한 제목은 유지됨 확인

@@ -3,10 +3,14 @@ package com.back.domain.question.question.controller;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.global.exception.DataNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +32,10 @@ public class QuestionController {
     }
 
     public record WriteForm(
+            @NotBlank(message = "제목을 입력해주세요.")
+            @Size(max = 200, message = "제목은 200자 이하로 입력가능합니다.")
             String subject,
+            @NotBlank(message = "내용을 입력해주세요.")
             String content
     ) {
     }
@@ -40,7 +47,12 @@ public class QuestionController {
 
     @PostMapping("/questions/write")
     @Transactional
-    public String write(@ModelAttribute("form") WriteForm form) {
+    public String write(
+            @ModelAttribute("form") @Valid WriteForm form,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) return "question/question/write";
+
         Question question = questionService.write(form.subject, form.content);
         return "redirect:/questions/" + question.getId();
     }
