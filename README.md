@@ -60,3 +60,9 @@
 - 작업: domain/question/question/entity/Question: BaseEntity 상속, subject(length 200), content(TEXT), @Getter·@NoArgsConstructor만 쓰고 @Setter 없음, 생성자 Question(subject, content)로 생성, 패키지는 처음부터 14168 구조(domain/애그리거트/엔티티/계층) 사용
 - 이유: 책은 @Setter를 열어 두고 서비스에서 new 후 setter로 값을 채움 → 어디서나 값이 바뀔 수 있음, 생성은 생성자로, 변경은 나중에 도메인 메서드(modify)로만 하게 하기 위해 (14168 Post)
 - 결과: ./gradlew test 통과 (1개), SQL 로그에 create table question (id, create_date, modify_date, subject varchar(200), content text) 확인
+
+### 003-03 엔티티, Answer 생성 (ManyToOne LAZY)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/003-03)
+- 작업: domain/question/answer/entity/Answer: BaseEntity 상속, content(TEXT), @ManyToOne(fetch = LAZY) question → answer 테이블에 question_id 외래키, setter 없이 생성자 Answer(question, content)
+- 이유: 책은 @ManyToOne 기본값(EAGER)이라 답변을 조회할 때마다 질문까지 즉시 함께 조회함, 필요할 때만 조회하도록 LAZY를 명시 (14163 22~25강, 14168: 웬만하면 LAZY만 사용)
+- 결과: ./gradlew test 통과 (1개), SQL 로그에 create table answer (question_id 포함)와 question_id 외래키 제약 생성 확인
