@@ -294,3 +294,9 @@
 - 작업: Question.deleteAnswer(answer): answers 리스트에서 remove, QuestionService.deleteAnswer, AnswerController @DeleteMapping("/questions/{questionId}/answers/{id}/delete"), 작성자가 아니면 400, 상세 화면 답변 카드에 작성자에게만 삭제 링크(a[method=DELETE] + confirm), 테스트 t14: deleteAnswer 후 flush하면 DB의 답변 수가 줄어드는지 확인
 - 이유: AnswerRepository 없이 리스트에서 빼기만 하면 003-05의 orphanRemoval이 DELETE를 실행 (14168 deleteComment), BaseEntity의 id 기반 equals 덕분에 remove가 정확히 동작 (14168 38강), 삭제는 GET이 아닌 DELETE + CSRF (015-03과 같은 이유)
 - 결과: ./gradlew test 통과 (18개), 브라우저에서 user1은 user2 답변의 삭제 링크가 안 보이고 수정 URL 직접 요청 시 400, user2가 자기 답변 삭제 → 확인창 → 답변 2개에서 1개로 줄어듦 확인
+
+### 015-06 수정·삭제, 수정일시 표시
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-06)
+- 작업: 상세 화면 질문·답변 카드에 수정일시(modified at) 배지 추가, modifyDate가 createDate보다 나중일 때만 표시
+- 이유: 수정된 글인지 알 수 있게 (책 3-09), 책은 수정할 때만 modifyDate를 넣지만, 이 프로젝트는 JPA Auditing이 작성 시점에도 modifyDate를 채우므로 둘을 비교해서 실제로 수정된 경우만 표시, 계획의 015-06(작성자 권한 체크)은 015-02~05의 각 수정·삭제 작업에 함께 넣어서, 이 번호는 책 3-09의 나머지 기능에 사용
+- 결과: ./gradlew test 통과 (18개), 브라우저에서 015-02에서 수정한 1번 질문에만 modified at 배지가 보이고, 수정하지 않은 글에는 표시되지 않음 확인
