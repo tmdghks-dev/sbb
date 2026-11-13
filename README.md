@@ -430,3 +430,9 @@ MockMvc 컨트롤러 테스트, 전역 예외 처리(`@ControllerAdvice`), flash
 - 작업: Question.answers의 @OneToMany에서 mappedBy를 일부러 제거 (실험용, 다음 커밋에서 복구), 테스트 실행 로그에서 생성되는 테이블과 INSERT 확인
 - 이유: mappedBy가 왜 필요한지 결과로 직접 확인하기 위해 (14163 007~013, 강사 레포 004-03), mappedBy가 없으면 JPA는 Question→Answer(@OneToMany)와 Answer→Question(@ManyToOne)을 서로 다른 관계로 봄, 003-04에서는 이유를 글로만 적었고, 계획 대비 빠진 실험을 보강
 - 결과: ./gradlew test 통과 (25개), DDL 로그에 create table question_answers (question_id, answers_id) 중간 테이블 생성, 답변을 추가할 때 answer.question_id와 별도로 question_answers에도 INSERT가 한 번 더 실행됨 → 같은 관계를 두 군데에 저장
+
+### 020-02 1단계 보강, mappedBy 복구로 관계를 answer.question_id 하나로
+- [링크](https://github.com/tmdghks-dev/sbb/commit/020-02)
+- 작업: @OneToMany(mappedBy = "question", …)로 되돌림
+- 이유: mappedBy = "question"은 "이 관계의 주인은 Answer.question 필드(외래키 question_id)"라는 뜻 → 중간 테이블 없이 외래키 하나로 관리 (14163, 강사 레포 004-04), 020-01 실험과 비교해 왜 mappedBy를 붙이는지 커밋 기록으로 남기기 위해
+- 결과: ./gradlew test 통과 (25개), 테스트 로그에 question_answers가 한 번도 나오지 않음 확인

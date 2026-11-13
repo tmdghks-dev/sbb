@@ -34,7 +34,7 @@ public class Question extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @OneToMany(cascade = {PERSIST, REMOVE}, orphanRemoval = true) // [실험] mappedBy 제거
+    @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private final List<Answer> answers = new ArrayList<>();
 
     // 추천한 회원들 (같은 회원은 한 번만 들어가도록 Set)
