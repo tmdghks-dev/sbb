@@ -5,14 +5,17 @@ import com.back.domain.question.answer.entity.Answer;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
@@ -34,6 +37,10 @@ public class Question extends BaseEntity {
     @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private final List<Answer> answers = new ArrayList<>();
 
+    // 추천한 회원들 (같은 회원은 한 번만 들어가도록 Set)
+    @ManyToMany
+    private final Set<Member> voters = new HashSet<>();
+
     public Question(Member author, String subject, String content) {
         this.author = author;
         this.subject = subject;
@@ -44,6 +51,10 @@ public class Question extends BaseEntity {
     public boolean isAuthor(Member member) {
         if (author == null || member == null) return false;
         return author.getId() == member.getId();
+    }
+
+    public void vote(Member member) {
+        voters.add(member);
     }
 
     public void modify(String subject, String content) {

@@ -55,6 +55,14 @@ public class QuestionService {
         return question.addAnswer(author, content);
     }
 
+    public void vote(Question question, Member voter) {
+        question.vote(voter);
+    }
+
+    public void voteAnswer(Answer answer, Member voter) {
+        answer.vote(voter);
+    }
+
     public void modifyAnswer(Answer answer, String content) {
         answer.modify(content);
     }

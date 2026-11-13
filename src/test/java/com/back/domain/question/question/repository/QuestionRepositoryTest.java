@@ -185,4 +185,19 @@ class QuestionRepositoryTest {
         assertThat(answerCount).isEqualTo(1);
         assertThat(question.getAnswers()).hasSize(1);
     }
+
+    @Test
+    @DisplayName("추천: 같은 회원이 여러 번 추천해도 한 번만 센다")
+    void t15() {
+        Question question = questionRepository.findById(1).get();
+        Member user2 = memberRepository.findByUsername("user2").get();
+        Member admin = memberRepository.findByUsername("admin").get();
+
+        question.vote(user2);
+        question.vote(user2);
+        question.vote(admin);
+        questionRepository.flush(); // question_voters 중간 테이블에 INSERT
+
+        assertThat(question.getVoters()).hasSize(2);
+    }
 }

@@ -128,6 +128,21 @@ public class QuestionController {
         return "redirect:/";
     }
 
+    // 추천은 데이터를 바꾸는 요청이라 GET 이 아니라 POST 로 받는다.
+    @PostMapping("/questions/{id}/vote")
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public String vote(
+            @PathVariable int id,
+            Principal principal
+    ) {
+        Question question = questionService.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("%d번 질문이 없습니다.".formatted(id)));
+        Member voter = memberService.findByUsername(principal.getName()).get();
+        questionService.vote(question, voter);
+        return "redirect:/questions/" + id;
+    }
+
     // 질문을 찾고, 로그인한 사람이 작성자가 아니면 거절한다.
     private Question findQuestionCheckAuthor(int id, Principal principal, String actionName) {
         Question question = questionService.findById(id)

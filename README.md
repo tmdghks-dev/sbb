@@ -300,3 +300,9 @@
 - 작업: 상세 화면 질문·답변 카드에 수정일시(modified at) 배지 추가, modifyDate가 createDate보다 나중일 때만 표시
 - 이유: 수정된 글인지 알 수 있게 (책 3-09), 책은 수정할 때만 modifyDate를 넣지만, 이 프로젝트는 JPA Auditing이 작성 시점에도 modifyDate를 채우므로 둘을 비교해서 실제로 수정된 경우만 표시, 계획의 015-06(작성자 권한 체크)은 015-02~05의 각 수정·삭제 작업에 함께 넣어서, 이 번호는 책 3-09의 나머지 기능에 사용
 - 결과: ./gradlew test 통과 (18개), 브라우저에서 015-02에서 수정한 1번 질문에만 modified at 배지가 보이고, 수정하지 않은 글에는 표시되지 않음 확인
+
+### 016-01 추천, 질문·답변 추천 (POST /…/vote)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/016-01)
+- 작업: Question·Answer에 @ManyToMany Set<Member> voters = new HashSet<>()와 vote(member), QuestionService.vote, voteAnswer, POST /questions/{id}/vote, POST /questions/{questionId}/answers/{id}/vote (로그인 필요), 상세 화면 질문·답변에 추천 버튼과 추천 수 배지, 링크는 a[method=POST] + confirm, 테스트 t15: 같은 회원이 두 번 추천해도 1번으로 셈
+- 이유: 질문·답변을 추천하는 기능 (책 3-10), Set이라 같은 회원은 한 번만 들어감, BaseEntity의 id 기반 equals로 같은 회원을 판별, 책의 voter 필드는 초기화가 없어 null 위험 → 14168처럼 컬렉션을 바로 초기화, 책은 GET /question/vote/{id} → 데이터를 바꾸는 요청이라 POST + CSRF (014 이후의 a[method] 방식)
+- 결과: ./gradlew test 통과 (19개), SQL 로그에 question_voters, answer_voters 중간 테이블 생성, 브라우저에서 user2가 1번 질문 추천 → 확인창 → 0에서 1, 한 번 더 추천해도 1 유지, GET /questions/1/vote는 405 확인 (답변 추천은 같은 구조로 구현, 화면 확인은 질문 추천만 함)

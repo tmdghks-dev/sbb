@@ -102,6 +102,22 @@ public class AnswerController {
         return "redirect:/questions/" + questionId;
     }
 
+    @PostMapping("/questions/{questionId}/answers/{id}/vote")
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public String vote(
+            @PathVariable int questionId,
+            @PathVariable int id,
+            Principal principal
+    ) {
+        Question question = findQuestion(questionId);
+        Answer answer = question.findAnswerById(id)
+                .orElseThrow(() -> new DataNotFoundException("%d번 답변이 없습니다.".formatted(id)));
+        Member voter = memberService.findByUsername(principal.getName()).get();
+        questionService.voteAnswer(answer, voter);
+        return "redirect:/questions/" + questionId;
+    }
+
     private Question findQuestion(int questionId) {
         return questionService.findById(questionId)
                 .orElseThrow(() -> new DataNotFoundException("%d번 질문이 없습니다.".formatted(questionId)));

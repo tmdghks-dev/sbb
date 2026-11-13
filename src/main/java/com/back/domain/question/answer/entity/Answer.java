@@ -5,9 +5,13 @@ import com.back.domain.question.question.entity.Question;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -24,6 +28,10 @@ public class Answer extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    // 추천한 회원들 (같은 회원은 한 번만 들어가도록 Set)
+    @ManyToMany
+    private final Set<Member> voters = new HashSet<>();
+
     public Answer(Question question, Member author, String content) {
         this.question = question;
         this.author = author;
@@ -34,6 +42,10 @@ public class Answer extends BaseEntity {
     public boolean isAuthor(Member member) {
         if (author == null || member == null) return false;
         return author.getId() == member.getId();
+    }
+
+    public void vote(Member member) {
+        voters.add(member);
     }
 
     public void modify(String content) {
