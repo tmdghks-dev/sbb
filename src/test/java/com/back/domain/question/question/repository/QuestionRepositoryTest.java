@@ -6,6 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,5 +126,18 @@ class QuestionRepositoryTest {
 
         Answer answer = answers.get(0);
         assertThat(answer.getContent()).isEqualTo("네 자동으로 생성됩니다.");
+    }
+
+    @Test
+    @DisplayName("페이징 (최신순)")
+    void t11() {
+        Page<Question> page = questionRepository.findAll(
+                PageRequest.of(0, 1, Sort.by(Sort.Order.desc("createDate")))
+        );
+
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.getContent()).hasSize(1);
+        assertThat(page.getContent().get(0).getSubject()).isEqualTo("스프링부트 모델 질문입니다.");
     }
 }

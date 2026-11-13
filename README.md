@@ -192,3 +192,9 @@
 - 작업: BaseInitData에 work2 추가: 질문 300개("테스터 데이터입니다:[001]" ~ [300]) 생성, 이미 300개 이상이면 건너뜀, work2를 실행하는 ApplicationRunner 빈은 @Profile("dev")로 개발 환경에서만, @Order로 work1 다음에 실행
 - 이유: 페이징을 확인하려면 데이터가 많아야 함 (책 3-02), 책은 테스트 코드로 개발 DB에 300개를 넣음 → 이 프로젝트의 테스트는 메모리 DB를 쓰고 질문 2개를 기준으로 단언하므로, 개발 환경 초기 데이터로 생성, 강사의 BaseInitData 구조(self 프록시 + @Transactional) 그대로 사용
 - 결과: ./gradlew test 통과 (11개, test 프로필에서는 work2가 실행되지 않음), 개발 실행 시 질문 목록에 302개가 한 페이지에 모두 표시됨 확인 → 010-02에서 페이징
+
+### 010-02 페이징, Page<Question>과 최신순 정렬
+- [링크](https://github.com/tmdghks-dev/sbb/commit/010-02)
+- 작업: QuestionService.findPage(page): PageRequest.of(page, 10, createDate 내림차순)으로 JpaRepository.findAll(Pageable) 호출, 목록 액션에 @RequestParam(defaultValue = "0") int page, 모델에 paging(Page<Question>) 전달, 리포지터리 테스트 t11: 크기 1 페이지에서 전체 2건·2페이지·최신 질문이 먼저 나오는지 확인
+- 이유: 질문이 많아지면 한 화면에 다 보여줄 수 없으므로 10개씩 나눠 보여주기 위해 (책 3-02), 최근 질문이 위로 오도록 작성일 내림차순, Page에는 내용뿐 아니라 전체 개수·페이지 수가 들어 있어 페이지 이동 링크를 만들 수 있음
+- 결과: ./gradlew test 통과 (12개), 브라우저에서 /questions → [300]부터 10개, /questions?page=1 → [290]부터 10개 확인

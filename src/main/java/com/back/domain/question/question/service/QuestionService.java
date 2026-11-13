@@ -4,6 +4,10 @@ import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +33,11 @@ public class QuestionService {
 
     public List<Question> findAll() {
         return questionRepository.findAll();
+    }
+
+    public Page<Question> findPage(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createDate")));
+        return questionRepository.findAll(pageable);
     }
 
     public Answer writeAnswer(Question question, String content) {
