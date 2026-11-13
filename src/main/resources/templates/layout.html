@@ -10,8 +10,11 @@
     <link rel="stylesheet" type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
+
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
 
 <th:block layout:fragment="content"></th:block>
 

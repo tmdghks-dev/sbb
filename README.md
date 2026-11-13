@@ -180,3 +180,9 @@
 - 작업: AnswerController에 중첩 record WriteForm(@NotBlank content), 액션 파라미터를 @Valid WriteForm으로 변경 (BindingResult 없음), 상세 화면 답변 폼에 onsubmit JS 검사: 앞뒤 공백 제거 후 비어 있으면 alert와 focus, 통과하면 전송
 - 이유: 14168 댓글과 같은 방식: 클라이언트 검사를 먼저 해서 대부분의 실수를 화면에서 막고, 서버 검사는 무조건 함 (14168 33~39강), BindingResult가 없으므로 JS를 우회해 빈 값을 보내면 서버가 400으로 거절 (설계 16), 책은 답변 오류 시 상세 화면을 다시 그림 → 14168 방식을 따름
 - 결과: ./gradlew test 통과 (11개), 브라우저에서 공백만 입력하고 답변등록 → "답변 내용을 입력해주세요." alert, 페이지 이동 없음, JS를 거치지 않고 빈 내용을 POST하면 400 응답 확인
+
+### 009-01 내비게이션 바, navbar fragment
+- [링크](https://github.com/tmdghks-dev/sbb/commit/009-01)
+- 작업: templates/navbar.html: SBB 로고(홈 링크)와 질문 목록 링크, 좁은 화면용 햄버거 버튼, layout.html에서 th:replace="~{navbar :: navbarFragment}"로 모든 페이지 상단에 포함, 햄버거 메뉴 동작을 위해 cdnjs Bootstrap JS(bundle) 추가
+- 이유: 어느 페이지에서든 홈과 질문 목록으로 이동하기 위해 (책 3-01), 레이아웃에 한 번만 넣어 모든 페이지에 적용, 책은 bootstrap.min.js를 static에 직접 넣음 → CSS와 같이 cdnjs 사용 (14163 방식), 책 순서대로 질문 등록(2-16) 다음에 진행
+- 결과: ./gradlew test 통과 (11개), 브라우저에서 모든 페이지 상단에 navbar 표시, 폭 400px에서 햄버거 버튼을 누르면 메뉴가 펼쳐짐 확인
