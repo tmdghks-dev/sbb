@@ -42,6 +42,9 @@
                  th:if="${answer.author != null and #authentication.name == answer.author.username}">
                 <a th:href="@{|/questions/${question.id}/answers/${answer.id}/modify|}"
                    class="btn btn-sm btn-outline-secondary">수정</a>
+                <a method="DELETE" th:href="@{|/questions/${question.id}/answers/${answer.id}/delete|}"
+                   onclick="return confirm('정말로 삭제하시겠습니까?');"
+                   class="btn btn-sm btn-outline-secondary">삭제</a>
             </div>
         </div>
     </div>

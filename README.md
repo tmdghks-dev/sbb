@@ -288,3 +288,9 @@
 - 작업: Question.findAnswerById(id): answers에서 찾기 (AnswerRepository 없음), Answer.isAuthor(member), Answer.modify(content), AnswerController: 중첩 record ModifyForm, GET·PUT /questions/{questionId}/answers/{id}/modify, 작성자가 아니면 400, templates/question/answer/modify.html: hidden _method=PUT, JS 빈 값 검사, 상세 화면 답변 카드에 작성자에게만 수정 버튼
 - 이유: 답변은 질문을 통해서만 다루기로 해서 question.findAnswerById로 찾음 (14168 findCommentById), URL은 질문의 하위 리소스 …/answers/{id}/modify, 수정은 PUT (14168 PostCommentController), 검증은 답변 작성과 같은 방식(JS 검사 + 서버 @Valid) (14168 댓글 수정), 저장은 dirty checking
 - 결과: ./gradlew test 통과 (17개), 브라우저에서 user2가 2번 질문의 자기 답변에서 수정 → 기존 내용이 채워진 폼 → 수정 후 상세에 반영 확인
+
+### 015-05 답변 삭제, DELETE /questions/{qid}/answers/{id}/delete (orphanRemoval)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-05)
+- 작업: Question.deleteAnswer(answer): answers 리스트에서 remove, QuestionService.deleteAnswer, AnswerController @DeleteMapping("/questions/{questionId}/answers/{id}/delete"), 작성자가 아니면 400, 상세 화면 답변 카드에 작성자에게만 삭제 링크(a[method=DELETE] + confirm), 테스트 t14: deleteAnswer 후 flush하면 DB의 답변 수가 줄어드는지 확인
+- 이유: AnswerRepository 없이 리스트에서 빼기만 하면 003-05의 orphanRemoval이 DELETE를 실행 (14168 deleteComment), BaseEntity의 id 기반 equals 덕분에 remove가 정확히 동작 (14168 38강), 삭제는 GET이 아닌 DELETE + CSRF (015-03과 같은 이유)
+- 결과: ./gradlew test 통과 (18개), 브라우저에서 user1은 user2 답변의 삭제 링크가 안 보이고 수정 URL 직접 요청 시 400, user2가 자기 답변 삭제 → 확인창 → 답변 2개에서 1개로 줄어듦 확인

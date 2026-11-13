@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,6 +85,20 @@ public class AnswerController {
         Answer answer = findAnswerCheckAuthor(question, id, principal, "수정");
         // save 없이 dirty checking 으로 UPDATE 된다.
         questionService.modifyAnswer(answer, modifyForm.content);
+        return "redirect:/questions/" + questionId;
+    }
+
+    @DeleteMapping("/questions/{questionId}/answers/{id}/delete")
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public String delete(
+            @PathVariable int questionId,
+            @PathVariable int id,
+            Principal principal
+    ) {
+        Question question = findQuestion(questionId);
+        Answer answer = findAnswerCheckAuthor(question, id, principal, "삭제");
+        questionService.deleteAnswer(question, answer);
         return "redirect:/questions/" + questionId;
     }
 

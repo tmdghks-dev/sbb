@@ -58,4 +58,8 @@ public class QuestionService {
     public void modifyAnswer(Answer answer, String content) {
         answer.modify(content);
     }
+
+    public boolean deleteAnswer(Question question, Answer answer) {
+        return question.deleteAnswer(answer);
+    }
 }

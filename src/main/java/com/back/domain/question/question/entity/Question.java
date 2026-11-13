@@ -57,6 +57,13 @@ public class Question extends BaseEntity {
         return answer;
     }
 
+    // 리스트에서 빼기만 하면 orphanRemoval 로 DELETE 된다.
+    public boolean deleteAnswer(Answer answer) {
+        if (answer == null) return false;
+
+        return answers.remove(answer);
+    }
+
     public Optional<Answer> findAnswerById(int id) {
         return answers
                 .stream()

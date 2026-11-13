@@ -4,6 +4,7 @@ import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.repository.MemberRepository;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ class QuestionRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @DisplayName("findAll")
@@ -166,5 +170,19 @@ class QuestionRepositoryTest {
         assertThat(question.isAuthor(user1)).isTrue();
         assertThat(question.isAuthor(user2)).isFalse();
         assertThat(question.isAuthor(null)).isFalse();
+    }
+
+    @Test
+    @DisplayName("deleteAnswer: 리스트에서 빼기만 해도 orphanRemoval 로 DELETE 된다")
+    void t14() {
+        Question question = questionRepository.findById(2).get();
+        Answer answer = question.findAnswerById(question.getAnswers().get(0).getId()).get();
+
+        assertThat(question.deleteAnswer(answer)).isTrue();
+        questionRepository.flush(); // 여기서 DELETE 실행
+
+        long answerCount = entityManager.createQuery("select count(a) from Answer a", Long.class).getSingleResult();
+        assertThat(answerCount).isEqualTo(1);
+        assertThat(question.getAnswers()).hasSize(1);
     }
 }
