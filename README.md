@@ -30,3 +30,9 @@
 - 작업: `spring-boot-starter-data-jpa`, `spring-boot-h2console`, `com.h2database:h2`, 테스트용 `spring-boot-starter-data-jpa-test` 추가
 - 이유: 질문·답변을 DB에 저장하기 위한 준비 (책 2-03). Boot 4는 H2 콘솔이 별도 모듈(`spring-boot-h2console`)이라 따로 추가해야 함 (14163·14168)
 - 결과: 테스트 통과, 개발 실행 시 `/h2-console` 200. 아직 DB 설정이 없어서 매번 이름이 랜덤인 메모리 DB(`jdbc:h2:mem:fb2e…`)가 만들어짐 → 002-02에서 해결. H2 콘솔은 devtools가 있을 때만 자동으로 켜져서 jar 실행에서는 404
+
+### 002-02 개발 환경, 프로필별 DB 분리 (dev 파일 DB / test 메모리 DB)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/002-02)
+- 작업: `application.yaml`(공통, 기본 프로필 `dev`, `ddl-auto: update`) / `application-dev.yaml`(`jdbc:h2:./db_dev;MODE=MySQL`) / `application-test.yaml`(`jdbc:h2:mem:db_test;MODE=MySQL`)로 분리, 테스트에 `@ActiveProfiles("test")`, `.gitignore`에 `db_dev.*` 추가
+- 이유: 책은 개발과 테스트가 같은 DB(`~/local`)를 써서 테스트가 개발 데이터를 오염시킴. 테스트는 매번 새로 만들어지는 메모리 DB를 쓰도록 분리 (14163 5강, 14168). `MODE=MySQL`은 나중에 MySQL로 바꿔도 SQL 문법 차이를 줄이기 위함 (14168)
+- 결과: 테스트는 `test` 프로필 + `jdbc:h2:mem:db_test`, 개발 실행은 `dev` 프로필 + 프로젝트 폴더의 `db_dev.mv.db` 파일 생성, H2 콘솔로 `jdbc:h2:./db_dev` 접속 확인, DB 파일은 git에 안 올라감
