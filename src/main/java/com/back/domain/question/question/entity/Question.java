@@ -39,6 +39,12 @@ public class Question extends BaseEntity {
         this.content = content;
     }
 
+    // author 는 LAZY 로딩된 프록시일 수 있어서 equals 대신 id 로 비교한다. (BaseEntity.equals 는 클래스까지 비교)
+    public boolean isAuthor(Member member) {
+        if (author == null || member == null) return false;
+        return author.getId() == member.getId();
+    }
+
     public void modify(String subject, String content) {
         this.subject = subject;
         this.content = content;

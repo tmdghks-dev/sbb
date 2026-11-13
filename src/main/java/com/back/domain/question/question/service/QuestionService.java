@@ -41,6 +41,11 @@ public class QuestionService {
         return questionRepository.findAll(pageable);
     }
 
+    public void modify(Question question, String subject, String content) {
+        // save 를 호출하지 않는다. 트랜잭션 안에서 바뀐 값은 dirty checking 으로 UPDATE 된다.
+        question.modify(subject, content);
+    }
+
     public Answer writeAnswer(Question question, Member author, String content) {
         return question.addAnswer(author, content);
     }

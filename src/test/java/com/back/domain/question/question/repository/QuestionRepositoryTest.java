@@ -155,4 +155,16 @@ class QuestionRepositoryTest {
         assertThat(question.getAuthor().getUsername()).isEqualTo("user1");
         assertThat(question.getAnswers().get(0).getAuthor().getUsername()).isEqualTo("user2");
     }
+
+    @Test
+    @DisplayName("isAuthor: LAZY 프록시인 author 와 비교해도 id 로 판단한다")
+    void t13() {
+        Question question = questionRepository.findById(1).get();
+        Member user1 = memberRepository.findByUsername("user1").get();
+        Member user2 = memberRepository.findByUsername("user2").get();
+
+        assertThat(question.isAuthor(user1)).isTrue();
+        assertThat(question.isAuthor(user2)).isFalse();
+        assertThat(question.isAuthor(null)).isFalse();
+    }
 }

@@ -270,3 +270,9 @@
 - 작업: application.yaml에 spring.mvc.hiddenmethod.filter.enabled: true, BackApplicationTests에 HiddenHttpMethodFilter 빈이 등록되었는지 확인하는 테스트 추가
 - 이유: HTML 폼은 GET·POST만 보낼 수 있음 → POST에 _method=PUT/DELETE를 담아 보내면 스프링이 PUT/DELETE 요청으로 바꿔 처리 (14168 41강), 수정은 @PutMapping, 삭제는 @DeleteMapping으로 행위를 HTTP 메서드로 구분하기 위해 (14163 37강 URL 표), Boot는 이 필터가 기본으로 꺼져 있어서 설정으로 켬
 - 결과: ./gradlew test 통과 (16개, 필터 등록 테스트 포함)
+
+### 015-02 질문 수정, GET·PUT /questions/{id}/modify (dirty checking)
+- [링크](https://github.com/tmdghks-dev/sbb/commit/015-02)
+- 작업: Question.isAuthor(member): 작성자 id와 비교, QuestionController: 중첩 record ModifyForm, GET /questions/{id}/modify(기존 값으로 폼 채움), PUT /questions/{id}/modify(@Valid + BindingResult), 작성자가 아니면 ResponseStatusException 400 "수정권한이 없습니다.", QuestionService.modify: question.modify()만 호출 (save 없음), modify.html: hidden _method=PUT, form_errors 재사용, 상세 화면에 작성자에게만 수정 버튼 표시, 테스트 t13: isAuthor가 LAZY 프록시 author와도 id로 판단
+- 이유: 책은 GET·POST /question/modify/{id} + setter + save → 수정은 PUT, 변경은 엔티티의 modify 메서드, 저장은 dirty checking (14168 PostController.modify), 작성자 비교를 equals로 하면 LAZY 프록시는 클래스가 달라 false가 될 수 있어서 id로 비교 (계획 검증에서 발견), 권한 오류는 책과 같이 400 (403 통일은 선택 목록)
+- 결과: ./gradlew test 통과 (17개), 브라우저에서 user2는 1번 질문(작성자 user1)에 수정 버튼이 안 보이고, 수정 URL 직접 접근 시 오류 페이지, user1은 수정 버튼 → 기존 값이 채워진 폼 → 제목 수정 → 상세로 이동, 로그에 save 없이 update question 실행 확인

@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
@@ -68,6 +71,61 @@ public class QuestionController {
         Member author = memberService.findByUsername(principal.getName()).get();
         Question question = questionService.write(author, form.subject, form.content);
         return "redirect:/questions/" + question.getId();
+    }
+
+    public record ModifyForm(
+            @NotBlank(message = "01-subject-제목을 입력해주세요.")
+            @Size(max = 200, message = "02-subject-제목은 200자 이하로 입력가능합니다.")
+            String subject,
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
+            String content
+    ) {
+    }
+
+    @GetMapping("/questions/{id}/modify")
+    @Transactional(readOnly = true)
+    @PreAuthorize("isAuthenticated()")
+    public String showModify(
+            @PathVariable int id,
+            Principal principal,
+            Model model
+    ) {
+        Question question = findQuestionCheckAuthor(id, principal, "수정");
+        model.addAttribute("question", question);
+        model.addAttribute("form", new ModifyForm(question.getSubject(), question.getContent()));
+        return "question/question/modify";
+    }
+
+    @PutMapping("/questions/{id}/modify")
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public String modify(
+            @PathVariable int id,
+            @ModelAttribute("form") @Valid ModifyForm form,
+            BindingResult bindingResult,
+            Principal principal,
+            Model model
+    ) {
+        Question question = findQuestionCheckAuthor(id, principal, "수정");
+        model.addAttribute("question", question);
+
+        if (bindingResult.hasErrors()) return "question/question/modify";
+
+        questionService.modify(question, form.subject, form.content);
+        return "redirect:/questions/" + question.getId();
+    }
+
+    // 질문을 찾고, 로그인한 사람이 작성자가 아니면 거절한다.
+    private Question findQuestionCheckAuthor(int id, Principal principal, String actionName) {
+        Question question = questionService.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("%d번 질문이 없습니다.".formatted(id)));
+        Member actor = memberService.findByUsername(principal.getName()).get();
+
+        if (!question.isAuthor(actor)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "%s권한이 없습니다.".formatted(actionName));
+        }
+
+        return question;
     }
 
     @GetMapping("/questions/{id}")
