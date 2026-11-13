@@ -22,4 +22,9 @@ public class QuestionController {
         model.addAttribute("questions", questions);
         return "question/question/list";
     }
+
+    @GetMapping("/questions/")
+    public String redirectToList() {
+        return "redirect:/questions";
+    }
 }

@@ -114,3 +114,9 @@
 - 작업: 타임리프 의존성 추가, dev 프로필에 thymeleaf cache false + prefix file:src/main/resources/templates/, QuestionService(count, write, findById, findAll), QuestionController GET /questions → question/question/list 템플릿, 액션에 @Transactional(readOnly = true), BaseInitData를 Repository 대신 QuestionService 호출로 변경
 - 이유: 컨트롤러는 Service를 통해 데이터를 다루게 하기 위해 (책 2-09, 14168 PostService), URL은 복수형 명사 /questions (14163 37강 표, 14168 /posts), 트랜잭션은 DB에 접근하는 컨트롤러 액션에 두고 조회는 readOnly (14168), 템플릿 경로는 도메인 구조와 같게 question/question/list (14168 post/post/list), dev에서 템플릿을 소스 폴더에서 바로 읽어 재시작 없이 반영 (14168)
 - 결과: ./gradlew test 통과 (11개), 브라우저(ego-lite)에서 /questions에 샘플 질문 2개(번호·제목·작성일시) 표시 확인
+
+### 005-02 질문 목록, 루트와 /questions/ 리다이렉트
+- [링크](https://github.com/tmdghks-dev/sbb/commit/005-02)
+- 작업: MainController GET / → redirect:/questions (@ResponseBody 제거), QuestionController GET /questions/ → redirect:/questions
+- 이유: 루트 주소로 들어오면 질문 목록을 보여주기 위해 (책 2-08, 14163 MainController), 끝에 /가 붙은 주소도 목록으로 보내 주소 통일 (14168 /posts/ → /posts), 리다이렉트 액션은 DB에 접근하지 않으므로 @Transactional을 붙이지 않음 (14168)
+- 결과: ./gradlew test 통과 (11개), GET / → 302 Location /questions, GET /questions/ → 302 Location /questions 확인
